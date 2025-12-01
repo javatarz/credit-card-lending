@@ -76,10 +76,11 @@ Details of the changes that need to be made. Key design changes. Important code 
 - Update ADR index when adding new records
 
 ## Tech Stack
-- Java 21 LTS
-- Spring Boot 3.2.x
-- PostgreSQL 15.x (RDS)
-- Gradle with Kotlin DSL
+- Java 25 LTS
+- Spring Boot 4.x (Spring Framework 7)
+- PostgreSQL 16.x (RDS)
+- Gradle 9.x with Kotlin DSL
+- Liquibase for database migrations
 - Terraform for infrastructure
 - AWS ECS Fargate for deployment
 
