@@ -88,6 +88,7 @@ Details of the changes that need to be made. Key design changes. Important code 
 - Modular monolith architecture
 - Separate schemas per module for data isolation
 - Fraud module deployed as separate service
+- Base package: `me.karun.bank.credit`
 - See GitHub Wiki for architecture details
 
 ## GitHub Workflow
