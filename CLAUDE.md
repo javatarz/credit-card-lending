@@ -10,10 +10,19 @@
 
 ### Documentation Updates
 When implementing stories, update relevant documentation:
-- **ADRs**: Update or create ADRs for technical decisions
-- **Architecture docs**: Keep `docs/ARCHITECTURE.md` and system design docs current
+- **ADRs**: In repo at `docs/adr/` - tied to code changes, reviewed via PRs
+- **Design docs**: GitHub Wiki - architecture, features, system design
 - **API docs**: Swagger auto-generated from code annotations
 - **Code docs**: Module READMEs, inline comments as needed
+
+### Documentation Locations
+| Type | Location | Purpose |
+|------|----------|---------|
+| ADRs | `docs/adr/` (repo) | Technical decisions tied to code |
+| Architecture | GitHub Wiki | System design, module overview |
+| Features/MVP | GitHub Wiki | Scope and roadmap |
+| API docs | Swagger (auto) | Endpoint documentation |
+| Epics/Stories | GitHub Issues | Requirements and tracking |
 
 #### Story Template
 
@@ -78,7 +87,7 @@ Details of the changes that need to be made. Key design changes. Important code 
 - Modular monolith architecture
 - Separate schemas per module for data isolation
 - Fraud module deployed as separate service
-- See `docs/ARCHITECTURE.md` for details
+- See GitHub Wiki for architecture details
 
 ## GitHub Workflow
 - Epics tracked as GitHub issues with `epic` label
