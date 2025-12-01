@@ -6,6 +6,45 @@
 - Every story must have accompanying documentation
 - Update relevant docs when implementing features
 - Keep docs in sync with code changes
+- All stories must follow the template below
+- Include all sections even if not applicable (use "None" for empty sections)
+
+#### Story Template
+
+```markdown
+## Description
+
+Purpose of this story. What needs to happen in this card.
+
+## Background / Context
+
+Why we are playing this card.
+
+## Dependency
+
+Highlight any external dependencies which should be ready.
+Link dependent upstream and downstream cards.
+
+## Limitations
+
+What will this story not cover.
+
+## Acceptance Criteria
+
+What needs to be done to mark the card as done.
+
+## Test Cases
+
+How do you verify this change works correctly? What are the edge cases that need to be tested?
+
+## Downstream/Upstream Impact
+
+What are other systems that get impacted by this change.
+
+## Tech Notes
+
+Details of the changes that need to be made. Key design changes. Important code changes (high level).
+```
 
 ### API Documentation
 - Use SpringDoc OpenAPI for automatic Swagger documentation
