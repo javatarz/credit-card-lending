@@ -5,8 +5,8 @@
 ### Stories & Epics
 - GitHub issues are the source of truth for epics and stories
 - Every change must have a corresponding GitHub issue
-- All stories must follow the template below
-- Include all sections even if not applicable (use "None" for empty sections)
+
+**IMPORTANT: When creating or grooming stories, you MUST use the Story Template below exactly. Never create a story without following this template. All sections are required - use "None" if a section doesn't apply.**
 
 ### Documentation Updates
 When implementing stories, update relevant documentation:
