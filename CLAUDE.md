@@ -3,11 +3,10 @@
 ## Documentation Requirements
 
 ### Stories
-- Every story must have accompanying documentation
-- Update relevant docs when implementing features
-- Keep docs in sync with code changes
+- GitHub issues are the source of truth for epics and stories
 - All stories must follow the template below
 - Include all sections even if not applicable (use "None" for empty sections)
+- No separate documentation files for stories - keep everything in GitHub issues
 
 #### Story Template
 
