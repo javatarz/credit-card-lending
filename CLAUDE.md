@@ -2,11 +2,18 @@
 
 ## Documentation Requirements
 
-### Stories
+### Stories & Epics
 - GitHub issues are the source of truth for epics and stories
+- Every change must have a corresponding GitHub issue
 - All stories must follow the template below
 - Include all sections even if not applicable (use "None" for empty sections)
-- No separate documentation files for stories - keep everything in GitHub issues
+
+### Documentation Updates
+When implementing stories, update relevant documentation:
+- **ADRs**: Update or create ADRs for technical decisions
+- **Architecture docs**: Keep `docs/ARCHITECTURE.md` and system design docs current
+- **API docs**: Swagger auto-generated from code annotations
+- **Code docs**: Module READMEs, inline comments as needed
 
 #### Story Template
 
