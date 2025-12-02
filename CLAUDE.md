@@ -59,6 +59,18 @@ What are other systems that get impacted by this change.
 ## Tech Notes
 
 Details of the changes that need to be made. Key design changes. Important code changes (high level).
+
+## Context Docs to Update
+
+Which context documents need to be updated as part of this story?
+- [ ] `docs/context/overview.md` - System architecture changes
+- [ ] `docs/context/glossary.md` - New domain terms
+- [ ] `docs/context/domain/<name>.md` - Domain rules or lifecycle changes
+- [ ] `docs/context/modules/<name>.md` - Module boundaries or API changes
+- [ ] `docs/context/integrations.md` - External system changes
+- [ ] `docs/context/conventions.md` - New patterns or standards
+- [ ] `docs/context/current-state.md` - What's built/planned changes
+- [ ] None - no context changes needed
 ```
 
 ### API Documentation
@@ -96,3 +108,52 @@ Details of the changes that need to be made. Key design changes. Important code 
 - Stories tracked as GitHub issues with `story` label
 - Link stories to parent epics
 - Use module labels (e.g., `module:customer`)
+
+## Ubiquitous Language
+
+Use terminology from `docs/context/glossary.md` consistently across all documentation and code. This maintains a shared language between business and technical domains (per Domain-Driven Design principles).
+
+When writing documentation or code:
+- Prefer glossary terms over generic alternatives
+- If a term isn't in the glossary but should be, add it
+- First use of a term with an abbreviation: "Full Term (ABBR)"
+
+## Context Documentation
+
+Documentation optimized for intelligent Engineering (iE) tools like Claude Code. Located in `docs/context/`.
+
+### Structure
+| File | Purpose |
+|------|---------|
+| `overview.md` | System purpose, architecture summary |
+| `glossary.md` | Domain terms and definitions |
+| `domain/<name>.md` | Business rules, entity lifecycles |
+| `modules/<name>.md` | Module boundaries, APIs, data owned |
+| `integrations.md` | External systems and APIs |
+| `conventions.md` | Code patterns and standards |
+| `current-state.md` | What's built vs planned |
+
+### When Learning About the System
+When developers ask about the system, domain, or architecture:
+1. Start with `docs/context/overview.md` for high-level understanding
+2. Check `docs/context/glossary.md` for domain terminology
+3. Read relevant files in `docs/context/domain/` for business rules
+4. Read relevant files in `docs/context/modules/` for technical details
+5. Check `docs/context/current-state.md` for what's implemented vs planned
+
+### When Completing Stories
+After completing a story, **always check if context docs need updating**:
+1. Review what changed in the story
+2. Check the "Context Docs to Update" section in the story
+3. Update relevant context docs atomically with code changes
+4. If uncertain, run `/update-context` to review systematically
+
+### Definition of Done
+A story is not complete until:
+- Code is implemented and tested
+- Context docs are updated if the story changed any of:
+  - Domain rules or entity lifecycles
+  - Module boundaries or public APIs
+  - System architecture or integrations
+  - Code conventions or patterns
+  - What's built/planned (always update `current-state.md` for new features)
