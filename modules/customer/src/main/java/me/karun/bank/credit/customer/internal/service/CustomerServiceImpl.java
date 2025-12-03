@@ -12,9 +12,11 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public RegistrationResponse register(RegistrationRequest request) {
+        var normalizedEmail = request.email().toLowerCase();
+
         return new RegistrationResponse(
                 UUID.randomUUID(),
-                request.email(),
+                normalizedEmail,
                 CustomerStatus.PENDING_VERIFICATION.name(),
                 Instant.now()
         );
