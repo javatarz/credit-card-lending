@@ -46,7 +46,6 @@ Code should be self-documenting. **Do not add comments** to explain what code do
 **Tests as documentation:** Test method names should clearly describe behavior. The test body should be simple enough to understand without comments.
 
 ```java
-// Good - no comments needed
 @Test
 void should_normalize_email_to_lowercase_when_registering() {
     var request = new RegistrationRequest("User@EXAMPLE.COM", "SecurePass123!");
@@ -56,6 +55,39 @@ void should_normalize_email_to_lowercase_when_registering() {
     assertThat(response.email()).isEqualTo("user@example.com");
 }
 ```
+
+### Clean Code Principles (Uncle Bob)
+
+Based on Robert C. Martin's "Clean Code: A Handbook of Agile Software Craftsmanship".
+
+#### Functions
+
+| Rule | Guidance |
+|------|----------|
+| **Small** | Functions should be small. Then smaller. Ideally 5-10 lines. |
+| **Do one thing** | A function should do one thing, do it well, and do it only. |
+| **One level of abstraction** | Statements in a function should be at the same abstraction level. |
+| **Descriptive names** | Long descriptive names are better than short cryptic ones. |
+| **Few arguments** | Ideal is zero (niladic), then one (monadic), then two (dyadic). Avoid three+ (triadic). |
+| **No side effects** | Don't do hidden things. If a function is called `checkPassword`, don't also initialize a session. |
+| **No flag arguments** | Don't pass booleans. Split into two functions instead. |
+
+#### Naming
+
+| Rule | Guidance |
+|------|----------|
+| **Intention-revealing** | Names should tell you why it exists, what it does, and how it's used. |
+| **Pronounceable** | Use names you can say out loud: `generationTimestamp` not `genymdhms`. |
+| **Searchable** | Longer names for larger scope. Single-letter names only for tiny local scope. |
+| **No encodings** | Don't prefix with type info (`strName`) or member prefixes (`m_`). |
+| **Nouns for classes** | `Customer`, `Account`, `AddressParser` - not `Manager`, `Processor`, `Data`. |
+| **Verbs for methods** | `postPayment()`, `deletePage()`, `save()`. |
+
+#### Boy Scout Rule
+
+> "Leave the campground cleaner than you found it."
+
+When you touch code, improve it slightly. Rename a confusing variable. Extract a method. Remove dead code. Small continuous improvements compound over time.
 
 ## Package Structure
 

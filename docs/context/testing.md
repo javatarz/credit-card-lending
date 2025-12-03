@@ -115,14 +115,44 @@ void should_reject_registration_when_email_already_exists() {
 }
 ```
 
-### Test Structure: Arrange-Act-Assert (Given-When-Then)
+### Test Structure: Arrange-Act-Assert (AAA)
 
-Every test should have three clear sections:
-1. **Arrange (Given)**: Set up preconditions and inputs
-2. **Act (When)**: Execute the behavior under test
-3. **Assert (Then)**: Verify the expected outcome
+Every test has three distinct sections, separated by blank lines:
 
-Use blank lines to separate sections. **Do not use comments** (`// Given`, `// When`, `// Then`) - the structure should be clear from the code itself.
+| Section | Purpose | Rule |
+|---------|---------|------|
+| **Arrange** | Set up preconditions and inputs | Single block, no blank lines within |
+| **Act** | Execute the behavior under test | **Single line only** |
+| **Assert** | Verify the expected outcome | **One logical assertion** |
+
+**Do not use comments** (`// Given`, `// When`, `// Then`) - the structure should be clear from the code itself.
+
+#### The Act Section
+
+The Act section must be a **single line**. This forces clarity about what exactly is being tested. Use a consistent variable name:
+
+```java
+var result = service.register(request);
+```
+
+If you struggle to write a single line, extract setup logic into Arrange or use a helper method.
+
+#### The Assert Section
+
+Each test should verify **one logical concept**. Prefer a single assertion, but related assertions on the same result are acceptable:
+
+```java
+assertThat(result.email()).isEqualTo("user@example.com");
+```
+
+Multiple assertions on the same result object are acceptable when they verify one logical concept:
+
+```java
+assertThat(result.customerId()).isNotNull();
+assertThat(result.status()).isEqualTo("PENDING_VERIFICATION");
+```
+
+If you need unrelated assertions, write separate tests.
 
 ### What to Test
 
