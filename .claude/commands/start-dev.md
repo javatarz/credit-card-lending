@@ -86,13 +86,15 @@ For each piece of functionality:
 
 1. Look for duplication (primary target)
 2. **Suggest refactorings** if you see opportunities
-3. **Ask the user**: "Any refactoring you'd like to do before we continue?"
+3. **Ask the user**: "Any refactoring you'd like to do before we commit?"
 4. **Trust the user's judgment** - if they say skip, skip
 5. If refactoring: Run tests again to ensure still GREEN
 
+**STOP: Wait for user confirmation before proceeding to commit.**
+
 #### COMMIT
 
-After each complete Red-Green-Refactor cycle:
+**Only after user confirms they are ready:**
 ```bash
 git add -A && git commit -m "<descriptive message>
 
