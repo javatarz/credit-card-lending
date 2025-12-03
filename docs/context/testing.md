@@ -104,15 +104,12 @@ The shape may evolve to diamond or trophy if that serves us better.
 ```java
 @Test
 void should_reject_registration_when_email_already_exists() {
-    // Given
     var existingCustomer = customers.withEmail("taken@example.com");
 
-    // When
     var result = customerService.register(aRegistrationRequest()
         .withEmail("taken@example.com")
         .build());
 
-    // Then
     assertThat(result).isFailure()
         .hasErrorCode("EMAIL_ALREADY_EXISTS");
 }
@@ -125,7 +122,7 @@ Every test should have three clear sections:
 2. **Act (When)**: Execute the behavior under test
 3. **Assert (Then)**: Verify the expected outcome
 
-Use blank lines to separate sections. Use comments (`// Given`, `// When`, `// Then`) when it aids readability.
+Use blank lines to separate sections. **Do not use comments** (`// Given`, `// When`, `// Then`) - the structure should be clear from the code itself.
 
 ### What to Test
 

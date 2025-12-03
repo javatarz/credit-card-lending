@@ -26,6 +26,37 @@ Signs you're violating SRP:
 - Classes with unrelated methods
 - Difficulty writing a concise docstring
 
+### Self-Documenting Code (No Comments)
+
+Code should be self-documenting. **Do not add comments** to explain what code does.
+
+| Instead of... | Do this... |
+|---------------|------------|
+| Comments explaining logic | Use descriptive method/variable names |
+| Comments marking sections | Extract to well-named methods |
+| `// Given / When / Then` in tests | Use blank lines to separate sections |
+| Javadoc on internal code | Write clear method signatures |
+
+**When comments ARE acceptable:**
+- Public API documentation (Javadoc on `api/` package interfaces)
+- Regulatory/compliance requirements that mandate documentation
+- `TODO` for tracked technical debt (with issue reference)
+- Explaining *why* not *what* (rare business rule clarification)
+
+**Tests as documentation:** Test method names should clearly describe behavior. The test body should be simple enough to understand without comments.
+
+```java
+// Good - no comments needed
+@Test
+void should_normalize_email_to_lowercase_when_registering() {
+    var request = new RegistrationRequest("User@EXAMPLE.COM", "SecurePass123!");
+
+    var response = service.register(request);
+
+    assertThat(response.email()).isEqualTo("user@example.com");
+}
+```
+
 ## Package Structure
 
 Base package: `me.karun.bank.credit`
