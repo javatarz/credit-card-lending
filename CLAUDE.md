@@ -69,6 +69,7 @@ Which context documents need to be updated as part of this story?
 - [ ] `docs/context/modules/<name>.md` - Module boundaries or API changes
 - [ ] `docs/context/integrations.md` - External system changes
 - [ ] `docs/context/conventions.md` - New patterns or standards
+- [ ] `docs/context/testing.md` - Test strategy or tooling changes
 - [ ] `docs/context/current-state.md` - What's built/planned changes
 - [ ] None - no context changes needed
 ```
@@ -131,6 +132,7 @@ Documentation optimized for intelligent Engineering (iE) tools like Claude Code.
 | `modules/<name>.md` | Module boundaries, APIs, data owned |
 | `integrations.md` | External systems and APIs |
 | `conventions.md` | Code patterns and standards |
+| `testing.md` | TDD principles, test strategy, tooling |
 | `current-state.md` | What's built vs planned |
 
 ### When Learning About the System

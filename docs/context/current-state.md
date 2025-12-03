@@ -1,6 +1,6 @@
 # Current State
 
-Last updated: 2024-12 (Story #28)
+Last updated: Story #29
 
 ## What's Built
 
@@ -14,6 +14,15 @@ Last updated: 2024-12 (Story #28)
 - [x] Health check endpoint at `/actuator/health`
 - [x] Swagger UI at `/swagger-ui.html`
 - [x] ADR documentation structure
+
+### Testing & Developer Workflow (Story #29)
+- [x] Testing strategy documented (`docs/context/testing.md`)
+- [x] TDD principles (Kent Beck, Uncle Bob)
+- [x] Test conventions (naming, structure, tooling)
+- [x] Design principles (SOLID, DRY, YAGNI, SRP)
+- [x] `/start-dev` command for TDD workflow
+- [x] Parameterized test patterns (@MethodSource)
+- [x] Object Mother + Builder pattern for test data
 
 ### Feature Modules
 - [ ] No feature modules implemented yet (use `./gradlew createModule` to create)

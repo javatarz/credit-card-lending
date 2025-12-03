@@ -1,5 +1,31 @@
 # Code Conventions
 
+## Design Principles
+
+### Core Principles
+
+| Principle | Meaning |
+|-----------|---------|
+| **SOLID** | Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion |
+| **DRY** | Don't Repeat Yourself - every piece of knowledge should have a single, unambiguous representation |
+| **YAGNI** | You Aren't Gonna Need It - don't add functionality until it's necessary |
+
+### Single Responsibility Principle (Key)
+
+SRP applies at **all levels**:
+
+| Level | Guidance |
+|-------|----------|
+| **Package** | Each package has one clear purpose. If you can't describe it in one sentence, split it. |
+| **Class** | Each class has one reason to change. If it has multiple responsibilities, extract them. |
+| **Method** | Each method does one thing. If it needs "and" to describe it, split it. |
+
+Signs you're violating SRP:
+- Class/method names with "And" or "Or"
+- Methods longer than ~20 lines
+- Classes with unrelated methods
+- Difficulty writing a concise docstring
+
 ## Package Structure
 
 Base package: `me.karun.bank.credit`
@@ -126,7 +152,10 @@ Each module owns its schema. Never query another module's schema directly.
 
 ## Testing Conventions
 
+See `docs/context/testing.md` for full testing strategy and TDD principles.
+
 ### Test Class Names
+
 | Type | Pattern | Example |
 |------|---------|---------|
 | Unit | `<Class>Test` | `CustomerServiceTest` |
@@ -134,16 +163,64 @@ Each module owns its schema. Never query another module's schema directly.
 | Architecture | `<Module>ArchitectureTest` | `CustomerArchitectureTest` |
 
 ### Test Method Names
+
+Pattern: `should_<expected>_when_<condition>`
+
 ```java
 @Test
-void shouldCreateCustomer_whenValidRequest() { }
+void should_create_customer_when_valid_request() { }
 
 @Test
-void shouldThrowException_whenEmailAlreadyExists() { }
+void should_throw_exception_when_email_already_exists() { }
 
 @Test
-void shouldReturnNotFound_whenCustomerDoesNotExist() { }
+void should_return_not_found_when_customer_does_not_exist() { }
 ```
+
+### Test Package Structure
+
+```
+me.karun.bank.credit.<module>/
+├── src/test/java/
+│   └── me.karun.bank.credit.<module>/
+│       ├── <Class>Test.java              # Unit tests
+│       ├── <Class>IntegrationTest.java   # Integration tests
+│       └── testdata/                     # Object Mothers and Builders
+│           ├── TestCustomers.java        # Object Mother
+│           └── CustomerBuilder.java      # Builder
+```
+
+### Test Data: Object Mother + Builder
+
+```java
+// Object Mother - common scenarios
+public class TestCustomers {
+    public static Customer verified() {
+        return aCustomer().withStatus(VERIFIED).build();
+    }
+    public static Customer unverified() {
+        return aCustomer().withStatus(PENDING_VERIFICATION).build();
+    }
+}
+
+// Builder - custom scenarios (Lombok @Builder OK here)
+@Builder(builderMethodName = "aCustomer")
+public class CustomerBuilder {
+    @Builder.Default private UUID id = UUID.randomUUID();
+    @Builder.Default private String email = "test@example.com";
+    @Builder.Default private CustomerStatus status = PENDING_VERIFICATION;
+}
+```
+
+### Test Tooling
+
+| Tool | Purpose |
+|------|---------|
+| JUnit 5 | Test framework |
+| AssertJ | Fluent assertions (preferred over JUnit assertions) |
+| Mockito | Mocking |
+| Testcontainers | Real PostgreSQL for integration tests |
+| ArchUnit | Module boundary enforcement |
 
 ## Event Conventions
 
