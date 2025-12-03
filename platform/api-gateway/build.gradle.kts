@@ -12,6 +12,9 @@ dependencies {
     implementation(project(":shared:infrastructure"))
     implementation(project(":shared:events"))
 
+    // Feature modules
+    implementation(project(":modules:customer"))
+
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
