@@ -5,6 +5,7 @@ import me.karun.bank.credit.customer.internal.domain.Customer;
 import me.karun.bank.credit.customer.internal.domain.CustomerStatus;
 import me.karun.bank.credit.customer.internal.repository.CustomerRepository;
 import me.karun.bank.credit.customer.api.InvalidEmailException;
+import me.karun.bank.credit.customer.api.WeakPasswordException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -79,6 +80,21 @@ class CustomerServiceTest {
 
         assertThatThrownBy(() -> service.register(request))
                 .isInstanceOf(InvalidEmailException.class);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "Short1!",           // too short
+            "nouppercase123!",   // no uppercase
+            "NOLOWERCASE123!",   // no lowercase
+            "NoNumbers!!",       // no numbers
+            "NoSpecial123"       // no special characters
+    })
+    void should_reject_registration_when_password_is_weak(String weakPassword) {
+        var request = new RegistrationRequest("user@example.com", weakPassword);
+
+        assertThatThrownBy(() -> service.register(request))
+                .isInstanceOf(WeakPasswordException.class);
     }
 
     private Customer simulateJpaSave(Customer customer) {
