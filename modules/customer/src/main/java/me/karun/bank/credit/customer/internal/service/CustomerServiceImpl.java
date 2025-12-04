@@ -1,6 +1,7 @@
 package me.karun.bank.credit.customer.internal.service;
 
 import me.karun.bank.credit.customer.api.CustomerService;
+import me.karun.bank.credit.customer.api.InvalidEmailException;
 import me.karun.bank.credit.customer.api.RegistrationRequest;
 import me.karun.bank.credit.customer.api.RegistrationResponse;
 import me.karun.bank.credit.customer.internal.domain.Customer;
@@ -10,9 +11,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.regex.Pattern;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
+
+    private static final Pattern EMAIL_PATTERN = Pattern.compile(
+            "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+    );
 
     private final CustomerRepository customerRepository;
     private final PasswordEncoder passwordEncoder;
@@ -24,6 +30,8 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public RegistrationResponse register(RegistrationRequest request) {
+        validateEmail(request.email());
+
         var normalizedEmail = request.email().toLowerCase();
         var passwordHash = passwordEncoder.encode(request.password());
 
@@ -42,5 +50,11 @@ public class CustomerServiceImpl implements CustomerService {
                 savedCustomer.getStatus().name(),
                 savedCustomer.getCreatedAt()
         );
+    }
+
+    private void validateEmail(String email) {
+        if (!EMAIL_PATTERN.matcher(email).matches()) {
+            throw new InvalidEmailException(email);
+        }
     }
 }
