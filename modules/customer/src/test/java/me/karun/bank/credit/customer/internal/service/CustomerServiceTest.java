@@ -44,7 +44,7 @@ class CustomerServiceTest {
     }
 
     @Test
-    void should_create_customer_in_pending_verification_status_when_valid_registration() {
+    void shouldCreateCustomerInPendingVerificationStatus_whenValidRegistration() {
         var request = new RegistrationRequest("user@example.com", "SecurePass123!");
         when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> simulateJpaSave(invocation.getArgument(0)));
 
@@ -57,7 +57,7 @@ class CustomerServiceTest {
     }
 
     @Test
-    void should_normalize_email_to_lowercase_when_registering() {
+    void shouldNormalizeEmailToLowercase() {
         var request = new RegistrationRequest("User@EXAMPLE.COM", "SecurePass123!");
         when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> simulateJpaSave(invocation.getArgument(0)));
 
@@ -67,7 +67,7 @@ class CustomerServiceTest {
     }
 
     @Test
-    void should_persist_customer_with_hashed_password_when_registering() {
+    void shouldPersistCustomerWithHashedPassword() {
         var request = new RegistrationRequest("user@example.com", "SecurePass123!");
         var customerCaptor = ArgumentCaptor.forClass(Customer.class);
         when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> simulateJpaSave(invocation.getArgument(0)));
@@ -83,7 +83,7 @@ class CustomerServiceTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"invalid", "missing-at.com", "@nodomain.com", "spaces in@email.com"})
-    void should_reject_registration_when_email_format_is_invalid(String invalidEmail) {
+    void shouldRejectRegistration_whenEmailFormatIsInvalid(String invalidEmail) {
         var request = new RegistrationRequest(invalidEmail, "SecurePass123!");
 
         assertThatThrownBy(() -> service.register(request))
@@ -98,7 +98,7 @@ class CustomerServiceTest {
             "NoNumbers!!",
             "NoSpecial123"
     })
-    void should_reject_registration_when_password_is_weak(String weakPassword) {
+    void shouldRejectRegistration_whenPasswordIsWeak(String weakPassword) {
         var request = new RegistrationRequest("user@example.com", weakPassword);
 
         assertThatThrownBy(() -> service.register(request))
@@ -108,7 +108,7 @@ class CustomerServiceTest {
     @ParameterizedTest
     @NullAndEmptySource
     @ValueSource(strings = {"   "})
-    void should_reject_registration_when_email_is_empty(String emptyEmail) {
+    void shouldRejectRegistration_whenEmailIsEmpty(String emptyEmail) {
         var request = new RegistrationRequest(emptyEmail, "SecurePass123!");
 
         assertThatThrownBy(() -> service.register(request))
@@ -118,7 +118,7 @@ class CustomerServiceTest {
     @ParameterizedTest
     @NullAndEmptySource
     @ValueSource(strings = {"   "})
-    void should_reject_registration_when_password_is_empty(String emptyPassword) {
+    void shouldRejectRegistration_whenPasswordIsEmpty(String emptyPassword) {
         var request = new RegistrationRequest("user@example.com", emptyPassword);
 
         assertThatThrownBy(() -> service.register(request))
@@ -126,7 +126,7 @@ class CustomerServiceTest {
     }
 
     @Test
-    void should_reject_registration_when_email_already_exists() {
+    void shouldRejectRegistration_whenEmailAlreadyExists() {
         var request = new RegistrationRequest("existing@example.com", "SecurePass123!");
         var existingCustomer = new Customer("existing@example.com", "hash", CustomerStatus.PENDING_VERIFICATION, Instant.now());
         when(customerRepository.findByEmail("existing@example.com")).thenReturn(Optional.of(existingCustomer));
@@ -136,7 +136,7 @@ class CustomerServiceTest {
     }
 
     @Test
-    void should_accept_email_with_special_characters() {
+    void shouldAcceptEmailWithSpecialCharacters() {
         var request = new RegistrationRequest("user+tag@example.com", "SecurePass123!");
         when(customerRepository.findByEmail("user+tag@example.com")).thenReturn(Optional.empty());
         when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> simulateJpaSave(invocation.getArgument(0)));
@@ -147,7 +147,7 @@ class CustomerServiceTest {
     }
 
     @Test
-    void should_publish_customer_registered_event_when_registration_succeeds() {
+    void shouldPublishCustomerRegisteredEvent_whenRegistrationSucceeds() {
         var request = new RegistrationRequest("user@example.com", "SecurePass123!");
         when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> simulateJpaSave(invocation.getArgument(0)));
         var eventCaptor = ArgumentCaptor.forClass(CustomerRegisteredEvent.class);

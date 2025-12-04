@@ -227,17 +227,34 @@ See `docs/context/testing.md` for full testing strategy and TDD principles.
 
 ### Test Method Names
 
-Pattern: `should_<expected>_when_<condition>`
+Use camelCase with underscore separating the "should" clause from the "when" clause:
+
+| Scenario | Pattern | Example |
+|----------|---------|---------|
+| With condition | `should<Expected>_when<Condition>` | `shouldRejectRegistration_whenPasswordIsEmpty()` |
+| Without condition | `should<Expected>` | `shouldNormalizeEmailToLowercase()` |
+
+**Rules:**
+- Use camelCase throughout (Java-idiomatic)
+- Underscore `_` only separates "should" from "when" clause
+- Tests with same "should" clause but different conditions share the prefix
+- Tests with single scenario (no variations) omit the "when" clause
 
 ```java
 @Test
-void should_create_customer_when_valid_request() { }
+void shouldCreateCustomer_whenValidRequest() { }
 
 @Test
-void should_throw_exception_when_email_already_exists() { }
+void shouldThrowException_whenEmailAlreadyExists() { }
 
 @Test
-void should_return_not_found_when_customer_does_not_exist() { }
+void shouldReturnNotFound_whenCustomerDoesNotExist() { }
+
+@Test
+void shouldNormalizeEmailToLowercase() { }
+
+@Test
+void shouldHashPasswordWithBCrypt() { }
 ```
 
 ### Test Package Structure
