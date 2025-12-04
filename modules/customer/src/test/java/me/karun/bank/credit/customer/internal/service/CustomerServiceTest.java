@@ -1,19 +1,39 @@
 package me.karun.bank.credit.customer.internal.service;
 
 import me.karun.bank.credit.customer.api.RegistrationRequest;
-import me.karun.bank.credit.customer.api.RegistrationResponse;
-import me.karun.bank.credit.customer.api.CustomerService;
+import me.karun.bank.credit.customer.internal.domain.Customer;
 import me.karun.bank.credit.customer.internal.domain.CustomerStatus;
+import me.karun.bank.credit.customer.internal.repository.CustomerRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.util.ReflectionTestUtils;
+
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 class CustomerServiceTest {
 
+    private CustomerRepository customerRepository;
+    private PasswordEncoder passwordEncoder;
+    private CustomerServiceImpl service;
+
+    @BeforeEach
+    void setUp() {
+        customerRepository = mock(CustomerRepository.class);
+        passwordEncoder = new BCryptPasswordEncoder(12);
+        service = new CustomerServiceImpl(customerRepository, passwordEncoder);
+    }
+
     @Test
     void should_create_customer_in_pending_verification_status_when_valid_registration() {
-        var service = new CustomerServiceImpl();
         var request = new RegistrationRequest("user@example.com", "SecurePass123!");
+        when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> simulateJpaSave(invocation.getArgument(0)));
 
         var response = service.register(request);
 
@@ -25,11 +45,31 @@ class CustomerServiceTest {
 
     @Test
     void should_normalize_email_to_lowercase_when_registering() {
-        var service = new CustomerServiceImpl();
         var request = new RegistrationRequest("User@EXAMPLE.COM", "SecurePass123!");
+        when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> simulateJpaSave(invocation.getArgument(0)));
 
         var response = service.register(request);
 
         assertThat(response.email()).isEqualTo("user@example.com");
+    }
+
+    @Test
+    void should_persist_customer_with_hashed_password_when_registering() {
+        var request = new RegistrationRequest("user@example.com", "SecurePass123!");
+        var customerCaptor = ArgumentCaptor.forClass(Customer.class);
+        when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> simulateJpaSave(invocation.getArgument(0)));
+
+        service.register(request);
+
+        verify(customerRepository).save(customerCaptor.capture());
+        var savedCustomer = customerCaptor.getValue();
+        assertThat(savedCustomer.getEmail()).isEqualTo("user@example.com");
+        assertThat(savedCustomer.getPasswordHash()).isNotEqualTo("SecurePass123!");
+        assertThat(passwordEncoder.matches("SecurePass123!", savedCustomer.getPasswordHash())).isTrue();
+    }
+
+    private Customer simulateJpaSave(Customer customer) {
+        ReflectionTestUtils.setField(customer, "id", UUID.randomUUID());
+        return customer;
     }
 }
