@@ -1,6 +1,6 @@
 # Current State
 
-Last updated: Story #29
+Last updated: Story #21
 
 ## What's Built
 
@@ -25,15 +25,23 @@ Last updated: Story #29
 - [x] Object Mother + Builder pattern for test data
 
 ### Feature Modules
-- [ ] No feature modules implemented yet (use `./gradlew createModule` to create)
+
+#### Customer Module (Story #21)
+- [x] Customer registration (`POST /api/v1/customers`)
+- [x] Email validation (format, uniqueness)
+- [x] Password validation (8+ chars, uppercase, lowercase, number, special char)
+- [x] Password hashing with BCrypt (configurable strength)
+- [x] CustomerRegisteredEvent published on success
+- [x] RFC 7807 Problem Details for errors
+- [x] Swagger/OpenAPI documentation
 
 ### CI/CD
 - [ ] GitHub Actions not configured
 - [ ] No automated testing pipeline
 
 ### Database
-- [ ] No Liquibase migrations (structure in place per module)
-- [ ] No database schemas created
+- [x] Liquibase migrations for customer module
+- [x] `customer` schema with `customers` table
 
 ## MVP Scope
 
@@ -70,7 +78,7 @@ MVP covers the core credit card lifecycle. See epics labeled `mvp`.
 ## Current Sprint Focus
 
 **Next stories to implement:**
-1. #21 - S01.1: Customer Registration
+1. ~~#21 - S01.1: Customer Registration~~ ✓ Complete
 2. #22 - S01.2: Email Verification
 3. #23 - S01.3: Profile Completion
 4. #24 - S01.4: Profile Management
