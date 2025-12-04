@@ -4,17 +4,21 @@ import me.karun.bank.credit.customer.api.RegistrationRequest;
 import me.karun.bank.credit.customer.internal.domain.Customer;
 import me.karun.bank.credit.customer.internal.domain.CustomerStatus;
 import me.karun.bank.credit.customer.internal.repository.CustomerRepository;
+import me.karun.bank.credit.customer.api.EmailAlreadyExistsException;
 import me.karun.bank.credit.customer.api.InvalidEmailException;
 import me.karun.bank.credit.customer.api.WeakPasswordException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -84,17 +88,58 @@ class CustomerServiceTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "Short1!",           // too short
-            "nouppercase123!",   // no uppercase
-            "NOLOWERCASE123!",   // no lowercase
-            "NoNumbers!!",       // no numbers
-            "NoSpecial123"       // no special characters
+            "Short1!",
+            "nouppercase123!",
+            "NOLOWERCASE123!",
+            "NoNumbers!!",
+            "NoSpecial123"
     })
     void should_reject_registration_when_password_is_weak(String weakPassword) {
         var request = new RegistrationRequest("user@example.com", weakPassword);
 
         assertThatThrownBy(() -> service.register(request))
                 .isInstanceOf(WeakPasswordException.class);
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = {"   "})
+    void should_reject_registration_when_email_is_empty(String emptyEmail) {
+        var request = new RegistrationRequest(emptyEmail, "SecurePass123!");
+
+        assertThatThrownBy(() -> service.register(request))
+                .isInstanceOf(InvalidEmailException.class);
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = {"   "})
+    void should_reject_registration_when_password_is_empty(String emptyPassword) {
+        var request = new RegistrationRequest("user@example.com", emptyPassword);
+
+        assertThatThrownBy(() -> service.register(request))
+                .isInstanceOf(WeakPasswordException.class);
+    }
+
+    @Test
+    void should_reject_registration_when_email_already_exists() {
+        var request = new RegistrationRequest("existing@example.com", "SecurePass123!");
+        var existingCustomer = new Customer("existing@example.com", "hash", CustomerStatus.PENDING_VERIFICATION, Instant.now());
+        when(customerRepository.findByEmail("existing@example.com")).thenReturn(Optional.of(existingCustomer));
+
+        assertThatThrownBy(() -> service.register(request))
+                .isInstanceOf(EmailAlreadyExistsException.class);
+    }
+
+    @Test
+    void should_accept_email_with_special_characters() {
+        var request = new RegistrationRequest("user+tag@example.com", "SecurePass123!");
+        when(customerRepository.findByEmail("user+tag@example.com")).thenReturn(Optional.empty());
+        when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> simulateJpaSave(invocation.getArgument(0)));
+
+        var response = service.register(request);
+
+        assertThat(response.email()).isEqualTo("user+tag@example.com");
     }
 
     private Customer simulateJpaSave(Customer customer) {
