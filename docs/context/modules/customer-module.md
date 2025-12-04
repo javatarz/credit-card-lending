@@ -4,36 +4,43 @@
 
 Owns customer identity, registration, verification, and profile management. This is the entry point for all users before they can apply for credit.
 
+## Implementation Status
+
+| Story | Status | Description |
+|-------|--------|-------------|
+| #21 | ✅ Done | Customer Registration |
+| #22 | Pending | Email Verification |
+| #23 | Pending | Profile Completion |
+| #24 | Pending | Profile Management |
+
 ## Package Structure
 
 ```
 me.karun.bank.credit.customer/
 ├── api/                    # Public API (interfaces, DTOs)
-│   ├── CustomerService.java
-│   ├── dto/
-│   │   ├── RegistrationRequest.java
-│   │   ├── RegistrationResponse.java
-│   │   ├── ProfileRequest.java
-│   │   └── ProfileResponse.java
-│   └── events/
-│       ├── CustomerRegisteredEvent.java
-│       ├── CustomerVerifiedEvent.java
-│       └── ProfileCompletedEvent.java
+│   ├── CustomerService.java              ✅
+│   ├── RegistrationRequest.java          ✅
+│   ├── RegistrationResponse.java         ✅
+│   ├── CustomerRegisteredEvent.java      ✅
+│   ├── InvalidEmailException.java        ✅
+│   ├── WeakPasswordException.java        ✅
+│   ├── EmailAlreadyExistsException.java  ✅
+│   └── (future: verification, profile DTOs)
 ├── internal/               # Private implementation
+│   ├── config/
+│   │   └── CustomerConfig.java           ✅
 │   ├── domain/
-│   │   ├── Customer.java
-│   │   ├── CustomerProfile.java
-│   │   ├── CustomerStatus.java
-│   │   └── VerificationToken.java
+│   │   ├── Customer.java                 ✅
+│   │   ├── CustomerStatus.java           ✅
+│   │   └── (future: CustomerProfile, VerificationToken)
 │   ├── repository/
-│   │   ├── CustomerRepository.java
-│   │   └── VerificationTokenRepository.java
-│   ├── service/
-│   │   └── CustomerServiceImpl.java
-│   └── validation/
-│       └── PasswordValidator.java
+│   │   ├── CustomerRepository.java       ✅
+│   │   └── (future: VerificationTokenRepository)
+│   └── service/
+│       └── CustomerServiceImpl.java      ✅
 └── web/                    # REST controllers
-    └── CustomerController.java
+    ├── CustomerController.java           ✅
+    └── CustomerExceptionHandler.java     ✅
 ```
 
 ## Database Schema
@@ -81,16 +88,26 @@ CREATE TABLE customer.verification_tokens (
 
 ## Public API
 
+### REST Endpoints
+
+| Method | Path | Description | Status |
+|--------|------|-------------|--------|
+| POST | `/api/v1/customers` | Register new customer | ✅ |
+| POST | `/api/v1/customers/verify` | Verify email | Planned |
+| POST | `/api/v1/customers/resend-verification` | Resend verification email | Planned |
+| GET | `/api/v1/customers/me/profile` | Get own profile | Planned |
+| PUT | `/api/v1/customers/me/profile` | Update own profile | Planned |
+
 ### CustomerService Interface
 
 ```java
 public interface CustomerService {
-    RegistrationResponse register(RegistrationRequest request);
-    void verifyEmail(String token);
-    void resendVerification(String email);
-    ProfileResponse getProfile(String customerId);
-    ProfileResponse updateProfile(String customerId, ProfileRequest request);
-    boolean isProfileComplete(String customerId);
+    RegistrationResponse register(RegistrationRequest request);  // ✅ Implemented
+    void verifyEmail(String token);                              // Planned
+    void resendVerification(String email);                       // Planned
+    ProfileResponse getProfile(String customerId);               // Planned
+    ProfileResponse updateProfile(String customerId, ProfileRequest request); // Planned
+    boolean isProfileComplete(String customerId);                // Planned
 }
 ```
 
