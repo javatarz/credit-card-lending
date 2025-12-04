@@ -1,6 +1,7 @@
 package me.karun.bank.credit.customer.internal.service;
 
 import me.karun.bank.credit.customer.api.CustomerService;
+import me.karun.bank.credit.customer.api.EmailAlreadyExistsException;
 import me.karun.bank.credit.customer.api.InvalidEmailException;
 import me.karun.bank.credit.customer.api.RegistrationRequest;
 import me.karun.bank.credit.customer.api.RegistrationResponse;
@@ -35,6 +36,7 @@ public class CustomerServiceImpl implements CustomerService {
         validatePassword(request.password());
 
         var normalizedEmail = request.email().toLowerCase();
+        checkEmailNotTaken(normalizedEmail);
         var passwordHash = passwordEncoder.encode(request.password());
 
         var customer = new Customer(
@@ -55,12 +57,24 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     private void validateEmail(String email) {
+        if (email == null || email.isBlank()) {
+            throw new InvalidEmailException("Email is required");
+        }
         if (!EMAIL_PATTERN.matcher(email).matches()) {
             throw new InvalidEmailException(email);
         }
     }
 
+    private void checkEmailNotTaken(String email) {
+        if (customerRepository.findByEmail(email).isPresent()) {
+            throw new EmailAlreadyExistsException(email);
+        }
+    }
+
     private void validatePassword(String password) {
+        if (password == null || password.isBlank()) {
+            throw new WeakPasswordException("Password is required");
+        }
         if (password.length() < 8) {
             throw new WeakPasswordException("Password must be at least 8 characters");
         }
