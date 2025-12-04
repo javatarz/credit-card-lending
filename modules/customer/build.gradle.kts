@@ -5,6 +5,7 @@ plugins {
 }
 
 val springBootVersion: String by project
+val springdocVersion: String by project
 
 dependencyManagement {
     imports {
@@ -23,6 +24,9 @@ dependencies {
 
     // Password hashing
     implementation("org.springframework.security:spring-security-crypto")
+
+    // OpenAPI / Swagger
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springdocVersion")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

@@ -5,6 +5,32 @@
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <!-- Add changesets for the customer module here -->
+    <changeSet id="001-create-customer-schema" author="claude">
+        <sql>CREATE SCHEMA IF NOT EXISTS customer</sql>
+    </changeSet>
+
+    <changeSet id="002-create-customers-table" author="claude">
+        <createTable tableName="customers" schemaName="customer">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="password_hash" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="customers" schemaName="customer" indexName="idx_customers_email">
+            <column name="email"/>
+        </createIndex>
+    </changeSet>
 
 </databaseChangeLog>
