@@ -1,5 +1,6 @@
 package me.karun.bank.credit.customer.internal.service;
 
+import me.karun.bank.credit.customer.api.CustomerRegisteredEvent;
 import me.karun.bank.credit.customer.api.CustomerService;
 import me.karun.bank.credit.customer.api.EmailAlreadyExistsException;
 import me.karun.bank.credit.customer.api.InvalidEmailException;
@@ -9,6 +10,7 @@ import me.karun.bank.credit.customer.api.WeakPasswordException;
 import me.karun.bank.credit.customer.internal.domain.Customer;
 import me.karun.bank.credit.customer.internal.domain.CustomerStatus;
 import me.karun.bank.credit.customer.internal.repository.CustomerRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,10 +26,12 @@ public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public CustomerServiceImpl(CustomerRepository customerRepository, PasswordEncoder passwordEncoder) {
+    public CustomerServiceImpl(CustomerRepository customerRepository, PasswordEncoder passwordEncoder, ApplicationEventPublisher eventPublisher) {
         this.customerRepository = customerRepository;
         this.passwordEncoder = passwordEncoder;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -47,6 +51,12 @@ public class CustomerServiceImpl implements CustomerService {
         );
 
         var savedCustomer = customerRepository.save(customer);
+
+        eventPublisher.publishEvent(new CustomerRegisteredEvent(
+                savedCustomer.getId(),
+                savedCustomer.getEmail(),
+                savedCustomer.getCreatedAt()
+        ));
 
         return new RegistrationResponse(
                 savedCustomer.getId(),

@@ -1,5 +1,6 @@
 package me.karun.bank.credit.customer.internal.service;
 
+import me.karun.bank.credit.customer.api.CustomerRegisteredEvent;
 import me.karun.bank.credit.customer.api.RegistrationRequest;
 import me.karun.bank.credit.customer.internal.domain.Customer;
 import me.karun.bank.credit.customer.internal.domain.CustomerStatus;
@@ -13,6 +14,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -30,13 +32,15 @@ class CustomerServiceTest {
 
     private CustomerRepository customerRepository;
     private PasswordEncoder passwordEncoder;
+    private ApplicationEventPublisher eventPublisher;
     private CustomerServiceImpl service;
 
     @BeforeEach
     void setUp() {
         customerRepository = mock(CustomerRepository.class);
         passwordEncoder = new BCryptPasswordEncoder(12);
-        service = new CustomerServiceImpl(customerRepository, passwordEncoder);
+        eventPublisher = mock(ApplicationEventPublisher.class);
+        service = new CustomerServiceImpl(customerRepository, passwordEncoder, eventPublisher);
     }
 
     @Test
@@ -140,6 +144,21 @@ class CustomerServiceTest {
         var response = service.register(request);
 
         assertThat(response.email()).isEqualTo("user+tag@example.com");
+    }
+
+    @Test
+    void should_publish_customer_registered_event_when_registration_succeeds() {
+        var request = new RegistrationRequest("user@example.com", "SecurePass123!");
+        when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> simulateJpaSave(invocation.getArgument(0)));
+        var eventCaptor = ArgumentCaptor.forClass(CustomerRegisteredEvent.class);
+
+        var response = service.register(request);
+
+        verify(eventPublisher).publishEvent(eventCaptor.capture());
+        var event = eventCaptor.getValue();
+        assertThat(event.customerId()).isEqualTo(response.customerId());
+        assertThat(event.email()).isEqualTo("user@example.com");
+        assertThat(event.registeredAt()).isNotNull();
     }
 
     private Customer simulateJpaSave(Customer customer) {
