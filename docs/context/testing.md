@@ -103,7 +103,7 @@ The shape may evolve to diamond or trophy if that serves us better.
 
 ```java
 @Test
-void should_reject_registration_when_email_already_exists() {
+void shouldRejectRegistration_whenEmailAlreadyExists() {
     var existingCustomer = customers.withEmail("taken@example.com");
 
     var result = customerService.register(aRegistrationRequest()
@@ -169,7 +169,7 @@ If you need unrelated assertions, write separate tests.
 Each test should verify one logical concept. If a test fails, it should be immediately obvious what broke.
 
 **Bad**: `testCustomerRegistration()` - tests 5 things, unclear what failed
-**Good**: `should_send_verification_email_when_registration_succeeds()`
+**Good**: `shouldSendVerificationEmail_whenRegistrationSucceeds()`
 
 ## DRY Tests
 
@@ -182,7 +182,7 @@ Prefer `@MethodSource` for data-driven tests. It's the most flexible approach fo
 ```java
 @ParameterizedTest
 @MethodSource("invalidEmailCases")
-void should_reject_registration_when_email_is_invalid(String email, String expectedError) {
+void shouldRejectRegistration_whenEmailIsInvalid(String email, String expectedError) {
     var request = aRegistrationRequest().withEmail(email).build();
 
     var result = customerService.register(request);
