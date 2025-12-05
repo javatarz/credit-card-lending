@@ -1,6 +1,6 @@
 # Current State
 
-Last updated: Story #21
+Last updated: Story #31
 
 ## What's Built
 
@@ -14,6 +14,12 @@ Last updated: Story #21
 - [x] Health check endpoint at `/actuator/health`
 - [x] Swagger UI at `/swagger-ui.html`
 - [x] ADR documentation structure
+
+### Documentation & Onboarding (Story #31)
+- [x] README.md with project overview and quick start
+- [x] Documentation map (Wiki, context docs, ADRs, Issues)
+- [x] iE workflow introduction (`/pickup`, `/start-dev`)
+- [x] MIT License
 
 ### Testing & Developer Workflow (Story #29)
 - [x] Testing strategy documented (`docs/context/testing.md`)
@@ -77,13 +83,17 @@ MVP covers the core credit card lifecycle. See epics labeled `mvp`.
 
 ## Current Sprint Focus
 
-**Next stories to implement:**
+**Documentation (P0 - in progress):**
+1. ~~#31 - S21.2: Create Repository README.md~~ ✓ Complete
+2. #32 - S21.3: Create intelligent Engineering Wiki Guide
+3. #33 - S21.4: Wiki Enhancements
+4. #27 - Developer Onboarding & CONTRIBUTING.md
+
+**Customer Module (P0 - next):**
 1. ~~#21 - S01.1: Customer Registration~~ ✓ Complete
 2. #22 - S01.2: Email Verification
 3. #23 - S01.3: Profile Completion
 4. #24 - S01.4: Profile Management
-
-These establish the customer module and enable credit applications.
 
 ## Technical Debt
 
