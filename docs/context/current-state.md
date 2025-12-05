@@ -1,6 +1,6 @@
 # Current State
 
-Last updated: Story #31
+Last updated: Story #32
 
 ## What's Built
 
@@ -15,11 +15,17 @@ Last updated: Story #31
 - [x] Swagger UI at `/swagger-ui.html`
 - [x] ADR documentation structure
 
-### Documentation & Onboarding (Story #31)
+### Documentation & Onboarding (Stories #31, #32)
 - [x] README.md with project overview and quick start
 - [x] Documentation map (Wiki, context docs, ADRs, Issues)
 - [x] iE workflow introduction (`/pickup`, `/start-dev`)
 - [x] MIT License
+- [x] intelligent Engineering (iE) Wiki Guide
+  - iE principles and implementation phases (Sahaj attribution)
+  - What we do vs don't yet do
+  - Workflow and documentation landscape diagrams
+  - Getting started guide
+- [x] Wiki Home.md updated with iE focus
 
 ### Testing & Developer Workflow (Story #29)
 - [x] Testing strategy documented (`docs/context/testing.md`)
@@ -85,7 +91,7 @@ MVP covers the core credit card lifecycle. See epics labeled `mvp`.
 
 **Documentation (P0 - in progress):**
 1. ~~#31 - S21.2: Create Repository README.md~~ ✓ Complete
-2. #32 - S21.3: Create intelligent Engineering Wiki Guide
+2. ~~#32 - S21.3: Create intelligent Engineering Wiki Guide~~ ✓ Complete
 3. #33 - S21.4: Wiki Enhancements
 4. #27 - Developer Onboarding & CONTRIBUTING.md
 
