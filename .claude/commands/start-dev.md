@@ -17,9 +17,9 @@ You are helping the user develop a story using Test-Driven Development (TDD).
    - If **one card assigned**: Proceed with that card
    - If **multiple cards assigned**: Use AskUserQuestion to let user choose which to work on
 
-3. **Create a feature branch**:
+3. **Ensure main is up to date** (trunk-based development):
    ```bash
-   git checkout -b <issue-number>-<short-description>
+   git checkout main && git pull
    ```
 
 ## Phase 2: Design Discussion
@@ -121,26 +121,19 @@ When **all acceptance criteria are met**:
    - Update any domain or module docs if behavior changed
    - Commit documentation updates
 
-3. **Create a Pull Request**:
+3. **Push to main** (trunk-based development):
    ```bash
-   gh pr create --title "<Story title>" --body "$(cat <<'EOF'
-   ## Summary
-   <Brief description of what was implemented>
-
-   Closes #<issue-number>
-
-   ## Changes
-   <Bullet list of key changes>
-
-   ## Test Plan
-   <How to verify this works>
-
-   🤖 Generated with [Claude Code](https://claude.com/claude-code)
-   EOF
-   )"
+   git push origin main
    ```
 
-4. **Report completion** to the user with the PR URL
+4. **Close the story**:
+   ```bash
+   gh issue close <issue-number> --comment "Implemented and pushed to main.
+
+   🤖 Generated with [Claude Code](https://claude.com/claude-code)"
+   ```
+
+5. **Report completion** to the user
 
 ## Handling Blockers
 

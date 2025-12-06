@@ -325,3 +325,63 @@ public void onCustomerRegistered(CustomerRegisteredEvent event) { }
 | Pattern matching | Switch expressions |
 | Virtual threads | High-throughput I/O |
 | Optional | Return types (never parameters) |
+
+## Git Workflow
+
+### Trunk-Based Development
+
+We use **trunk-based development** - all work happens on `main`:
+
+| Practice | Description |
+|----------|-------------|
+| **No feature branches** | Commit directly to `main` |
+| **No pull requests** | Push directly after local verification |
+| **Small commits** | Each Red-Green-Refactor cycle = one commit |
+| **Always green** | Never push failing tests |
+| **Continuous integration** | Build must pass after each push |
+
+### Why Trunk-Based?
+
+- **Faster feedback** - No waiting for PR reviews
+- **Reduced merge conflicts** - Small, frequent integrations
+- **Simpler workflow** - Less git ceremony
+- **Encourages small changes** - Easier to review history
+
+### Commit Guidelines
+
+```bash
+# Good: Small, focused commits
+git commit -m "Add email validation to registration"
+git commit -m "Return 400 for invalid email format"
+git commit -m "Add uniqueness check for email"
+
+# Bad: Large, bundled commits
+git commit -m "Implement customer registration with validation"
+```
+
+### Commit Message Format
+
+```
+<summary line - what changed>
+
+<optional body - why it changed>
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+```
+
+### Before Pushing
+
+Always verify locally:
+```bash
+./gradlew build   # Must pass
+git push origin main
+```
+
+### When to Use Branches
+
+Exceptions where branches are acceptable:
+- **Experimental spikes** - Exploring options before committing to approach
+- **Large refactors** - When you need to share WIP with others
+- **External contributions** - Contributors without push access
