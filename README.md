@@ -37,23 +37,19 @@ iE uses AI (Claude Code) as a collaborative partner throughout development:
 /start-dev       → Begin TDD development with design discussion
                    → Red-Green-Refactor cycles with commits
                    → Update context docs
-                   → Create PR
+                   → Push to main
 ```
 
-For more details, see the [intelligent Engineering Wiki Guide](https://github.com/javatarz/credit-card-lending/wiki/intelligent-Engineering) (coming soon).
+For more details, see the [intelligent Engineering Wiki Guide](https://github.com/javatarz/credit-card-lending/wiki/intelligent-Engineering).
 
 ## Quick Start
 
 ### Prerequisites
 
-Install [mise](https://mise.jdx.dev/) for tool version management:
+- [mise](https://mise.jdx.dev/) - Tool version management
+- [Docker](https://www.docker.com/) - Any engine (Docker Desktop, Colima, OrbStack, etc.)
 
-```bash
-# macOS
-brew install mise
-
-# Or see https://mise.jdx.dev/getting-started.html for other platforms
-```
+See [CONTRIBUTING.md](CONTRIBUTING.md#prerequisites) for installation instructions.
 
 ### Setup
 
@@ -62,15 +58,8 @@ brew install mise
 git clone git@github.com:javatarz/credit-card-lending.git
 cd credit-card-lending
 
-# Install tools (Java 25, Gradle) via mise
-mise trust
-mise install
-
-# Start PostgreSQL
-docker-compose up -d
-
-# Build and verify
-./gradlew build
+# Run the setup script (installs Java, starts PostgreSQL, builds)
+./scripts/setup.sh
 
 # Run the application
 ./gradlew bootRun
@@ -158,7 +147,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions and contribution g
 2. Run `/start-dev` to begin TDD development
 3. Follow the Red-Green-Refactor cycle
 4. Update context docs as needed
-5. Create a PR
+5. Push to main
 
 ## License
 

@@ -1,6 +1,7 @@
 plugins {
     id("org.springframework.boot")
     id("io.spring.dependency-management")
+    id("com.avast.gradle.docker-compose") version "0.17.12"
 }
 
 val springdocVersion: String by project
@@ -34,4 +35,14 @@ dependencies {
 
 springBoot {
     mainClass.set("me.karun.bank.credit.gateway.Application")
+}
+
+dockerCompose {
+    useComposeFiles.add("../../docker-compose.yml")
+    waitForTcpPorts.set(true)
+    stopContainers.set(false) // Keep containers running after task completes
+}
+
+tasks.named("bootRun") {
+    dependsOn("composeUp")
 }

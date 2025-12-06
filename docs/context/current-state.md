@@ -1,6 +1,6 @@
 # Current State
 
-Last updated: Story #33
+Last updated: Story #27
 
 ## What's Built
 
@@ -15,7 +15,7 @@ Last updated: Story #33
 - [x] Swagger UI at `/swagger-ui.html`
 - [x] ADR documentation structure
 
-### Documentation & Onboarding (Stories #31, #32, #33)
+### Documentation & Onboarding (Stories #31, #32, #33, #27)
 - [x] README.md with project overview and quick start
 - [x] Documentation map (Wiki, context docs, ADRs, Issues)
 - [x] iE workflow introduction (`/pickup`, `/start-dev`)
@@ -31,6 +31,11 @@ Last updated: Story #33
   - Architecture.md Mermaid diagrams (system architecture, transaction flow)
   - Architecture.md tech stack fixed (Java 25, Spring Boot 4.x)
   - MVP.md Mermaid user journey diagram
+- [x] Developer onboarding (Story #27):
+  - `scripts/setup.sh` - One-command development setup
+  - `CONTRIBUTING.md` - Comprehensive contribution guidelines
+  - Gradle docker-compose plugin - Auto-starts PostgreSQL on `bootRun`
+  - Trunk-based development workflow documented
 
 ### Testing & Developer Workflow (Story #29)
 - [x] Testing strategy documented (`docs/context/testing.md`)
@@ -98,9 +103,9 @@ MVP covers the core credit card lifecycle. See epics labeled `mvp`.
 1. ~~#31 - S21.2: Create Repository README.md~~ ✓ Complete
 2. ~~#32 - S21.3: Create intelligent Engineering Wiki Guide~~ ✓ Complete
 3. ~~#33 - S21.4: Wiki Enhancements~~ ✓ Complete
-4. #27 - Developer Onboarding & CONTRIBUTING.md
+4. ~~#27 - Developer Onboarding & CONTRIBUTING.md~~ ✓ Complete
 
-**Customer Module (P0 - next):**
+**Customer Module (P0 - in progress):**
 1. ~~#21 - S01.1: Customer Registration~~ ✓ Complete
 2. #22 - S01.2: Email Verification
 3. #23 - S01.3: Profile Completion
