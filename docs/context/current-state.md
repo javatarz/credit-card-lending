@@ -1,6 +1,6 @@
 # Current State
 
-Last updated: Story #32
+Last updated: Story #33
 
 ## What's Built
 
@@ -15,7 +15,7 @@ Last updated: Story #32
 - [x] Swagger UI at `/swagger-ui.html`
 - [x] ADR documentation structure
 
-### Documentation & Onboarding (Stories #31, #32)
+### Documentation & Onboarding (Stories #31, #32, #33)
 - [x] README.md with project overview and quick start
 - [x] Documentation map (Wiki, context docs, ADRs, Issues)
 - [x] iE workflow introduction (`/pickup`, `/start-dev`)
@@ -26,6 +26,11 @@ Last updated: Story #32
   - Workflow and documentation landscape diagrams
   - Getting started guide
 - [x] Wiki Home.md updated with iE focus
+- [x] Wiki enhancements:
+  - Context-Documentation.md links to key context docs
+  - Architecture.md Mermaid diagrams (system architecture, transaction flow)
+  - Architecture.md tech stack fixed (Java 25, Spring Boot 4.x)
+  - MVP.md Mermaid user journey diagram
 
 ### Testing & Developer Workflow (Story #29)
 - [x] Testing strategy documented (`docs/context/testing.md`)
@@ -89,10 +94,10 @@ MVP covers the core credit card lifecycle. See epics labeled `mvp`.
 
 ## Current Sprint Focus
 
-**Documentation (P0 - in progress):**
+**Documentation (P0 - complete):**
 1. ~~#31 - S21.2: Create Repository README.md~~ ✓ Complete
 2. ~~#32 - S21.3: Create intelligent Engineering Wiki Guide~~ ✓ Complete
-3. #33 - S21.4: Wiki Enhancements
+3. ~~#33 - S21.4: Wiki Enhancements~~ ✓ Complete
 4. #27 - Developer Onboarding & CONTRIBUTING.md
 
 **Customer Module (P0 - next):**
