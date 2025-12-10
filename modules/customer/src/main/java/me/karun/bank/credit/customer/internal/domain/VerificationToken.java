@@ -52,4 +52,8 @@ public class VerificationToken {
     public Instant getExpiresAt() {
         return expiresAt;
     }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
 }

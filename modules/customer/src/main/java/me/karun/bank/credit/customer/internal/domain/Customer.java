@@ -25,6 +25,9 @@ public class Customer {
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
+    @Column(name = "verified_at")
+    private Instant verifiedAt;
+
     protected Customer() {}
 
     public Customer(String email, String passwordHash, CustomerStatus status, Instant createdAt) {
@@ -52,5 +55,18 @@ public class Customer {
 
     public Instant getCreatedAt() {
         return createdAt;
+    }
+
+    public Instant getVerifiedAt() {
+        return verifiedAt;
+    }
+
+    public void verify() {
+        this.status = CustomerStatus.VERIFIED;
+        this.verifiedAt = Instant.now();
+    }
+
+    public boolean isVerified() {
+        return this.status == CustomerStatus.VERIFIED;
     }
 }

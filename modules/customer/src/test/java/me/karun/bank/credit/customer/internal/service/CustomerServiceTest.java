@@ -1,13 +1,11 @@
 package me.karun.bank.credit.customer.internal.service;
 
-import me.karun.bank.credit.customer.api.CustomerRegisteredEvent;
-import me.karun.bank.credit.customer.api.RegistrationRequest;
+import me.karun.bank.credit.customer.api.*;
 import me.karun.bank.credit.customer.internal.domain.Customer;
 import me.karun.bank.credit.customer.internal.domain.CustomerStatus;
+import me.karun.bank.credit.customer.internal.domain.VerificationToken;
 import me.karun.bank.credit.customer.internal.repository.CustomerRepository;
-import me.karun.bank.credit.customer.api.EmailAlreadyExistsException;
-import me.karun.bank.credit.customer.api.InvalidEmailException;
-import me.karun.bank.credit.customer.api.WeakPasswordException;
+import me.karun.bank.credit.customer.internal.repository.VerificationTokenRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -31,6 +29,7 @@ import static org.mockito.Mockito.*;
 class CustomerServiceTest {
 
     private CustomerRepository customerRepository;
+    private VerificationTokenRepository tokenRepository;
     private PasswordEncoder passwordEncoder;
     private ApplicationEventPublisher eventPublisher;
     private CustomerServiceImpl service;
@@ -38,9 +37,10 @@ class CustomerServiceTest {
     @BeforeEach
     void setUp() {
         customerRepository = mock(CustomerRepository.class);
+        tokenRepository = mock(VerificationTokenRepository.class);
         passwordEncoder = new BCryptPasswordEncoder(12);
         eventPublisher = mock(ApplicationEventPublisher.class);
-        service = new CustomerServiceImpl(customerRepository, passwordEncoder, eventPublisher);
+        service = new CustomerServiceImpl(customerRepository, tokenRepository, passwordEncoder, eventPublisher);
     }
 
     @Test
@@ -164,5 +164,132 @@ class CustomerServiceTest {
     private Customer simulateJpaSave(Customer customer) {
         ReflectionTestUtils.setField(customer, "id", UUID.randomUUID());
         return customer;
+    }
+
+    @Test
+    void shouldVerifyCustomer_whenValidToken() {
+        var customerId = UUID.randomUUID();
+        var rawToken = "valid-token";
+        var tokenHash = hashToken(rawToken);
+        var customer = new Customer("user@example.com", "hash", CustomerStatus.PENDING_VERIFICATION, Instant.now());
+        ReflectionTestUtils.setField(customer, "id", customerId);
+        var token = new VerificationToken(customerId, tokenHash, Instant.now().plusSeconds(3600));
+        when(tokenRepository.findByTokenHash(tokenHash)).thenReturn(Optional.of(token));
+        when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
+
+        var response = service.verifyEmail(new VerifyEmailRequest(rawToken));
+
+        assertThat(response.customerId()).isEqualTo(customerId);
+        assertThat(response.status()).isEqualTo("VERIFIED");
+        assertThat(response.verifiedAt()).isNotNull();
+    }
+
+    @Test
+    void shouldThrowTokenNotFoundException_whenTokenDoesNotExist() {
+        var rawToken = "non-existent-token";
+        when(tokenRepository.findByTokenHash(hashToken(rawToken))).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.verifyEmail(new VerifyEmailRequest(rawToken)))
+                .isInstanceOf(TokenNotFoundException.class);
+    }
+
+    @Test
+    void shouldThrowTokenExpiredException_whenTokenIsExpired() {
+        var customerId = UUID.randomUUID();
+        var rawToken = "expired-token";
+        var tokenHash = hashToken(rawToken);
+        var expiredToken = new VerificationToken(customerId, tokenHash, Instant.now().minusSeconds(3600));
+        when(tokenRepository.findByTokenHash(tokenHash)).thenReturn(Optional.of(expiredToken));
+
+        assertThatThrownBy(() -> service.verifyEmail(new VerifyEmailRequest(rawToken)))
+                .isInstanceOf(TokenExpiredException.class);
+    }
+
+    @Test
+    void shouldReturnSuccess_whenCustomerAlreadyVerified() {
+        var customerId = UUID.randomUUID();
+        var rawToken = "valid-token";
+        var tokenHash = hashToken(rawToken);
+        var customer = new Customer("user@example.com", "hash", CustomerStatus.PENDING_VERIFICATION, Instant.now());
+        ReflectionTestUtils.setField(customer, "id", customerId);
+        customer.verify();
+        var token = new VerificationToken(customerId, tokenHash, Instant.now().plusSeconds(3600));
+        when(tokenRepository.findByTokenHash(tokenHash)).thenReturn(Optional.of(token));
+        when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
+
+        var response = service.verifyEmail(new VerifyEmailRequest(rawToken));
+
+        assertThat(response.status()).isEqualTo("VERIFIED");
+    }
+
+    @Test
+    void shouldDeleteToken_afterSuccessfulVerification() {
+        var customerId = UUID.randomUUID();
+        var rawToken = "valid-token";
+        var tokenHash = hashToken(rawToken);
+        var customer = new Customer("user@example.com", "hash", CustomerStatus.PENDING_VERIFICATION, Instant.now());
+        ReflectionTestUtils.setField(customer, "id", customerId);
+        var token = new VerificationToken(customerId, tokenHash, Instant.now().plusSeconds(3600));
+        ReflectionTestUtils.setField(token, "id", UUID.randomUUID());
+        when(tokenRepository.findByTokenHash(tokenHash)).thenReturn(Optional.of(token));
+        when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
+
+        service.verifyEmail(new VerifyEmailRequest(rawToken));
+
+        verify(tokenRepository).delete(token);
+    }
+
+    private String hashToken(String rawToken) {
+        return Integer.toHexString(rawToken.hashCode());
+    }
+
+    @Test
+    void shouldResendVerification_whenCustomerExistsAndNotVerified() {
+        var customerId = UUID.randomUUID();
+        var customer = new Customer("user@example.com", "hash", CustomerStatus.PENDING_VERIFICATION, Instant.now());
+        ReflectionTestUtils.setField(customer, "id", customerId);
+        when(customerRepository.findByEmail("user@example.com")).thenReturn(Optional.of(customer));
+        when(tokenRepository.countByCustomerIdAndCreatedAtAfter(eq(customerId), any(Instant.class))).thenReturn(0L);
+
+        var response = service.resendVerification(new ResendVerificationRequest("user@example.com"));
+
+        assertThat(response.message()).isEqualTo("Verification email sent if account exists");
+        verify(tokenRepository).save(any(VerificationToken.class));
+    }
+
+    @Test
+    void shouldReturnSuccess_whenEmailDoesNotExist() {
+        when(customerRepository.findByEmail("unknown@example.com")).thenReturn(Optional.empty());
+
+        var response = service.resendVerification(new ResendVerificationRequest("unknown@example.com"));
+
+        assertThat(response.message()).isEqualTo("Verification email sent if account exists");
+        verify(tokenRepository, never()).save(any());
+    }
+
+    @Test
+    void shouldThrowRateLimitExceeded_whenTooManyResendRequests() {
+        var customerId = UUID.randomUUID();
+        var customer = new Customer("user@example.com", "hash", CustomerStatus.PENDING_VERIFICATION, Instant.now());
+        ReflectionTestUtils.setField(customer, "id", customerId);
+        when(customerRepository.findByEmail("user@example.com")).thenReturn(Optional.of(customer));
+        when(tokenRepository.countByCustomerIdAndCreatedAtAfter(eq(customerId), any(Instant.class))).thenReturn(3L);
+
+        assertThatThrownBy(() -> service.resendVerification(new ResendVerificationRequest("user@example.com")))
+                .isInstanceOf(RateLimitExceededException.class);
+    }
+
+    @Test
+    void shouldNotResend_whenCustomerAlreadyVerified() {
+        var customerId = UUID.randomUUID();
+        var customer = new Customer("user@example.com", "hash", CustomerStatus.PENDING_VERIFICATION, Instant.now());
+        ReflectionTestUtils.setField(customer, "id", customerId);
+        customer.verify();
+        when(customerRepository.findByEmail("user@example.com")).thenReturn(Optional.of(customer));
+
+        var response = service.resendVerification(new ResendVerificationRequest("user@example.com"));
+
+        assertThat(response.message()).isEqualTo("Verification email sent if account exists");
+        verify(tokenRepository, never()).save(any());
     }
 }

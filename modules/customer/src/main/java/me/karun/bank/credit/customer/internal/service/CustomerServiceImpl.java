@@ -1,20 +1,18 @@
 package me.karun.bank.credit.customer.internal.service;
 
-import me.karun.bank.credit.customer.api.CustomerRegisteredEvent;
-import me.karun.bank.credit.customer.api.CustomerService;
-import me.karun.bank.credit.customer.api.EmailAlreadyExistsException;
-import me.karun.bank.credit.customer.api.InvalidEmailException;
-import me.karun.bank.credit.customer.api.RegistrationRequest;
-import me.karun.bank.credit.customer.api.RegistrationResponse;
-import me.karun.bank.credit.customer.api.WeakPasswordException;
+import me.karun.bank.credit.customer.api.*;
 import me.karun.bank.credit.customer.internal.domain.Customer;
 import me.karun.bank.credit.customer.internal.domain.CustomerStatus;
+import me.karun.bank.credit.customer.internal.domain.VerificationToken;
 import me.karun.bank.credit.customer.internal.repository.CustomerRepository;
+import me.karun.bank.credit.customer.internal.repository.VerificationTokenRepository;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.regex.Pattern;
 
 @Service
@@ -23,13 +21,21 @@ public class CustomerServiceImpl implements CustomerService {
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
             "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
     );
+    private static final int TOKEN_EXPIRY_HOURS = 24;
+    private static final int MAX_RESEND_PER_HOUR = 3;
 
     private final CustomerRepository customerRepository;
+    private final VerificationTokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
 
-    public CustomerServiceImpl(CustomerRepository customerRepository, PasswordEncoder passwordEncoder, ApplicationEventPublisher eventPublisher) {
+    public CustomerServiceImpl(
+            CustomerRepository customerRepository,
+            VerificationTokenRepository tokenRepository,
+            PasswordEncoder passwordEncoder,
+            ApplicationEventPublisher eventPublisher) {
         this.customerRepository = customerRepository;
+        this.tokenRepository = tokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.eventPublisher = eventPublisher;
     }
@@ -64,6 +70,80 @@ public class CustomerServiceImpl implements CustomerService {
                 savedCustomer.getStatus().name(),
                 savedCustomer.getCreatedAt()
         );
+    }
+
+    @Override
+    @Transactional
+    public VerifyEmailResponse verifyEmail(VerifyEmailRequest request) {
+        var tokenHash = hashToken(request.token());
+        var token = tokenRepository.findByTokenHash(tokenHash)
+                .orElseThrow(TokenNotFoundException::new);
+
+        if (token.isExpired()) {
+            throw new TokenExpiredException();
+        }
+
+        var customer = customerRepository.findById(token.getCustomerId())
+                .orElseThrow(TokenNotFoundException::new);
+
+        if (!customer.isVerified()) {
+            customer.verify();
+            customerRepository.save(customer);
+        }
+
+        tokenRepository.delete(token);
+
+        return new VerifyEmailResponse(
+                customer.getId(),
+                customer.getEmail(),
+                customer.getStatus().name(),
+                customer.getVerifiedAt()
+        );
+    }
+
+    @Override
+    @Transactional
+    public ResendVerificationResponse resendVerification(ResendVerificationRequest request) {
+        var normalizedEmail = request.email().toLowerCase();
+        var customerOpt = customerRepository.findByEmail(normalizedEmail);
+
+        if (customerOpt.isEmpty()) {
+            return new ResendVerificationResponse("Verification email sent if account exists");
+        }
+
+        var customer = customerOpt.get();
+
+        if (customer.isVerified()) {
+            return new ResendVerificationResponse("Verification email sent if account exists");
+        }
+
+        var recentTokenCount = countRecentTokens(customer.getId());
+        if (recentTokenCount >= MAX_RESEND_PER_HOUR) {
+            throw new RateLimitExceededException();
+        }
+
+        createVerificationToken(customer.getId());
+
+        return new ResendVerificationResponse("Verification email sent if account exists");
+    }
+
+    private void createVerificationToken(java.util.UUID customerId) {
+        var rawToken = java.util.UUID.randomUUID().toString();
+        var tokenHash = hashToken(rawToken);
+        var expiresAt = Instant.now().plus(TOKEN_EXPIRY_HOURS, ChronoUnit.HOURS);
+        var verificationToken = new VerificationToken(customerId, tokenHash, expiresAt);
+        tokenRepository.save(verificationToken);
+    }
+
+    private long countRecentTokens(java.util.UUID customerId) {
+        return tokenRepository.countByCustomerIdAndCreatedAtAfter(
+                customerId,
+                Instant.now().minus(1, ChronoUnit.HOURS)
+        );
+    }
+
+    private String hashToken(String rawToken) {
+        return Integer.toHexString(rawToken.hashCode());
     }
 
     private void validateEmail(String email) {

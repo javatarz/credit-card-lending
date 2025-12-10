@@ -6,16 +6,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import me.karun.bank.credit.customer.api.CustomerService;
-import me.karun.bank.credit.customer.api.RegistrationRequest;
-import me.karun.bank.credit.customer.api.RegistrationResponse;
+import me.karun.bank.credit.customer.api.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/customers")
@@ -41,5 +35,32 @@ public class CustomerController {
     })
     public RegistrationResponse register(@RequestBody RegistrationRequest request) {
         return customerService.register(request);
+    }
+
+    @PostMapping("/verify-email")
+    @Operation(summary = "Verify email address", description = "Verifies a customer's email using the token sent during registration")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Email verified successfully",
+                    content = @Content(schema = @Schema(implementation = VerifyEmailResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Token not found",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "410", description = "Token expired",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
+    })
+    public VerifyEmailResponse verifyEmail(@RequestBody VerifyEmailRequest request) {
+        return customerService.verifyEmail(request);
+    }
+
+    @PostMapping("/resend-verification")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    @Operation(summary = "Resend verification email", description = "Requests a new verification email to be sent")
+    @ApiResponses({
+            @ApiResponse(responseCode = "202", description = "Verification email sent if account exists",
+                    content = @Content(schema = @Schema(implementation = ResendVerificationResponse.class))),
+            @ApiResponse(responseCode = "429", description = "Too many requests",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
+    })
+    public ResendVerificationResponse resendVerification(@RequestBody ResendVerificationRequest request) {
+        return customerService.resendVerification(request);
     }
 }

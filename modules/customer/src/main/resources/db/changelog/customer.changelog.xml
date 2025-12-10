@@ -33,4 +33,38 @@
         </createIndex>
     </changeSet>
 
+    <changeSet id="003-add-verified-at-column" author="claude">
+        <addColumn tableName="customers" schemaName="customer">
+            <column name="verified_at" type="TIMESTAMP WITH TIME ZONE"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="004-create-verification-tokens-table" author="claude">
+        <createTable tableName="verification_tokens" schemaName="customer">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="customer_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_verification_tokens_customer" references="customer.customers(id)"/>
+            </column>
+            <column name="token_hash" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expires_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="verification_tokens" schemaName="customer" indexName="idx_verification_tokens_hash">
+            <column name="token_hash"/>
+        </createIndex>
+
+        <createIndex tableName="verification_tokens" schemaName="customer" indexName="idx_verification_tokens_customer">
+            <column name="customer_id"/>
+        </createIndex>
+    </changeSet>
+
 </databaseChangeLog>
