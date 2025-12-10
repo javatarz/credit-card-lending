@@ -9,7 +9,7 @@ Owns customer identity, registration, verification, and profile management. This
 | Story | Status | Description |
 |-------|--------|-------------|
 | #21 | ✅ Done | Customer Registration |
-| #22 | Pending | Email Verification |
+| #22 | ✅ Done | Email Verification |
 | #23 | Pending | Profile Completion |
 | #24 | Pending | Profile Management |
 
@@ -25,19 +25,28 @@ me.karun.bank.credit.customer/
 │   ├── InvalidEmailException.java        ✅
 │   ├── WeakPasswordException.java        ✅
 │   ├── EmailAlreadyExistsException.java  ✅
-│   └── (future: verification, profile DTOs)
+│   ├── VerifyEmailRequest.java           ✅
+│   ├── VerifyEmailResponse.java          ✅
+│   ├── ResendVerificationRequest.java    ✅
+│   ├── ResendVerificationResponse.java   ✅
+│   ├── TokenNotFoundException.java       ✅
+│   ├── TokenExpiredException.java        ✅
+│   ├── RateLimitExceededException.java   ✅
+│   └── (future: profile DTOs)
 ├── internal/               # Private implementation
 │   ├── config/
 │   │   └── CustomerConfig.java           ✅
 │   ├── domain/
 │   │   ├── Customer.java                 ✅
 │   │   ├── CustomerStatus.java           ✅
-│   │   └── (future: CustomerProfile, VerificationToken)
+│   │   ├── VerificationToken.java        ✅
+│   │   └── (future: CustomerProfile)
 │   ├── repository/
 │   │   ├── CustomerRepository.java       ✅
-│   │   └── (future: VerificationTokenRepository)
+│   │   └── VerificationTokenRepository.java ✅
 │   └── service/
-│       └── CustomerServiceImpl.java      ✅
+│       ├── CustomerServiceImpl.java      ✅
+│       └── VerificationTokenService.java ✅
 └── web/                    # REST controllers
     ├── CustomerController.java           ✅
     └── CustomerExceptionHandler.java     ✅
@@ -93,8 +102,8 @@ CREATE TABLE customer.verification_tokens (
 | Method | Path | Description | Status |
 |--------|------|-------------|--------|
 | POST | `/api/v1/customers` | Register new customer | ✅ |
-| POST | `/api/v1/customers/verify` | Verify email | Planned |
-| POST | `/api/v1/customers/resend-verification` | Resend verification email | Planned |
+| POST | `/api/v1/customers/verify-email` | Verify email | ✅ |
+| POST | `/api/v1/customers/resend-verification` | Resend verification email | ✅ |
 | GET | `/api/v1/customers/me/profile` | Get own profile | Planned |
 | PUT | `/api/v1/customers/me/profile` | Update own profile | Planned |
 
@@ -102,12 +111,12 @@ CREATE TABLE customer.verification_tokens (
 
 ```java
 public interface CustomerService {
-    RegistrationResponse register(RegistrationRequest request);  // ✅ Implemented
-    void verifyEmail(String token);                              // Planned
-    void resendVerification(String email);                       // Planned
-    ProfileResponse getProfile(String customerId);               // Planned
+    RegistrationResponse register(RegistrationRequest request);           // ✅ Implemented
+    VerifyEmailResponse verifyEmail(VerifyEmailRequest request);          // ✅ Implemented
+    ResendVerificationResponse resendVerification(ResendVerificationRequest request); // ✅ Implemented
+    ProfileResponse getProfile(String customerId);                        // Planned
     ProfileResponse updateProfile(String customerId, ProfileRequest request); // Planned
-    boolean isProfileComplete(String customerId);                // Planned
+    boolean isProfileComplete(String customerId);                         // Planned
 }
 ```
 

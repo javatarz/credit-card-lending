@@ -1,6 +1,6 @@
 # Current State
 
-Last updated: Story #27
+Last updated: Story #22
 
 ## What's Built
 
@@ -48,7 +48,7 @@ Last updated: Story #27
 
 ### Feature Modules
 
-#### Customer Module (Story #21)
+#### Customer Module (Stories #21, #22)
 - [x] Customer registration (`POST /api/v1/customers`)
 - [x] Email validation (format, uniqueness)
 - [x] Password validation (8+ chars, uppercase, lowercase, number, special char)
@@ -56,6 +56,11 @@ Last updated: Story #27
 - [x] CustomerRegisteredEvent published on success
 - [x] RFC 7807 Problem Details for errors
 - [x] Swagger/OpenAPI documentation
+- [x] Email verification (`POST /api/v1/customers/verify-email`)
+- [x] Resend verification (`POST /api/v1/customers/resend-verification`)
+- [x] Verification tokens (UUID, 24-hour expiry, hashed storage)
+- [x] Rate limiting on resend (max 3 per hour)
+- [x] Token generation on CustomerRegisteredEvent
 
 ### CI/CD
 - [ ] GitHub Actions not configured
@@ -64,6 +69,7 @@ Last updated: Story #27
 ### Database
 - [x] Liquibase migrations for customer module
 - [x] `customer` schema with `customers` table
+- [x] `customer.verification_tokens` table for email verification
 
 ## MVP Scope
 
@@ -107,7 +113,7 @@ MVP covers the core credit card lifecycle. See epics labeled `mvp`.
 
 **Customer Module (P0 - in progress):**
 1. ~~#21 - S01.1: Customer Registration~~ ✓ Complete
-2. #22 - S01.2: Email Verification
+2. ~~#22 - S01.2: Email Verification~~ ✓ Complete
 3. #23 - S01.3: Profile Completion
 4. #24 - S01.4: Profile Management
 
