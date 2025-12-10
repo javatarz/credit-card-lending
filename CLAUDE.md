@@ -1,5 +1,12 @@
 # Project Guidelines
 
+## Repository Information
+- **Never guess or hallucinate repository URLs**
+- Always run `git remote -v` to get the actual repository URL
+- Repository: `javatarz/credit-card-lending` (verified via git remote)
+- GitHub Issues: https://github.com/javatarz/credit-card-lending/issues
+- GitHub Wiki: https://github.com/javatarz/credit-card-lending/wiki
+
 ## Documentation Requirements
 
 ### Stories & Epics
