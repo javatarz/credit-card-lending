@@ -61,6 +61,14 @@ Quick reference for what's built vs planned. Check here before starting work to 
   - Auto-clone on first access, auto-pull before reads
   - Push requires explicit user approval
   - URLs derived from `git remote` for portability
+- [x] TDD and Review skills for Claude Code (Story #45):
+  - Model-invoked `tdd` skill (`.claude/skills/tdd/SKILL.md`)
+  - Model-invoked `review` skill (`.claude/skills/review/SKILL.md`)
+  - TDD enforces Red-Green-Refactor, bypassed with "quick fix" / "no tdd"
+  - Review provides structured findings (Blockers/Warnings/Suggestions)
+  - Flexible review modes: interactive, batch-ac, batch-story, autonomous
+  - Autonomous mode supports thresholds: strict, normal, relaxed
+  - `/start-dev` delegates TDD workflow to skill
 
 ### Testing & Developer Workflow (Story #29)
 - [x] Testing strategy documented (`docs/context/testing.md`)
