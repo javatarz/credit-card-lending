@@ -168,6 +168,7 @@ See `docs/adr/` for full details:
 | ADR-002 | Schema per module for data isolation |
 | ADR-003 | Java 25, Spring Boot 4, PostgreSQL 16 |
 | ADR-004 | Fraud module as separate service |
+| ADR-005 | Processor simulation for development |
 | ADR-006 | Spring events for internal communication |
 
 ## Metrics & Monitoring

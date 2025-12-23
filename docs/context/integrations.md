@@ -68,7 +68,7 @@ HTTP API (separate ECS service)
 | Score Transaction | Real-time transaction fraud check | < 50ms |
 
 ### Details
-See ADR-004 for architecture. Deployed as separate service even in MVP.
+See [ADR-004](../adr/ADR-004-fraud-module-extraction.md) for architecture. Deployed as separate service even in MVP.
 
 ## Email Service
 

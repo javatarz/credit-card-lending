@@ -207,7 +207,7 @@ public class KafkaEventPublisher implements EventPublisher {
     private final KafkaTemplate<String, DomainEvent> kafka;
 
     public void publish(DomainEvent event) {
-        kafka.send(event.getAggregateTtype().toLowerCase() + "-events", event);
+        kafka.send(event.getAggregateType().toLowerCase() + "-events", event);
     }
 }
 ```
