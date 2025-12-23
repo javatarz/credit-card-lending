@@ -9,7 +9,7 @@ Quick reference for what's built vs planned. Check here before starting work to 
 
 ---
 
-Last updated: Story #22
+> **Freshness:** Run `git log -1 --format="%h %s (%ar)" docs/context/current-state.md` to see last update.
 
 ## What's Built
 
