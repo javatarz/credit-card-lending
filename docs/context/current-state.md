@@ -55,6 +55,12 @@ Quick reference for what's built vs planned. Check here before starting work to 
   - Pre-commit hook for markdown link validation
   - GitHub Action for CI link validation
   - Commit message conventions documented (Story #44)
+- [x] Wiki integration for Claude Code (Story #38):
+  - Model-invoked `wiki` skill (`.claude/skills/wiki/SKILL.md`)
+  - Local wiki clone at `docs/wiki/` (gitignored)
+  - Auto-clone on first access, auto-pull before reads
+  - Push requires explicit user approval
+  - URLs derived from `git remote` for portability
 
 ### Testing & Developer Workflow (Story #29)
 - [x] Testing strategy documented (`docs/context/testing.md`)

@@ -73,3 +73,19 @@ iE-optimized documentation in `docs/context/`. See [`docs/context/README.md`](do
 A story is not complete until:
 - Code is implemented and tested
 - Context docs are updated if the story changed domain rules, module APIs, architecture, or conventions
+
+## Wiki Access
+
+The GitHub Wiki contains architecture and design documentation. Access it via the `wiki` skill.
+
+| Aspect | Details |
+|--------|---------|
+| Local path | `docs/wiki/` (gitignored) |
+| Online | GitHub Wiki (see repo) |
+| Access | Automatic via wiki skill |
+
+**Reading:** Just ask about architecture, design, etc. Auto-clones and auto-pulls.
+
+**Writing:** Edit locally, then ask to push (requires approval).
+
+**Fallback:** If clone fails, skill provides online wiki URL.

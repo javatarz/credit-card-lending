@@ -28,3 +28,6 @@ logs/
 # Test output
 /test-results/
 /test-output/
+
+# Wiki (cloned from wiki repo, managed via wiki skill)
+docs/wiki/

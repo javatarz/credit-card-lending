@@ -65,6 +65,18 @@ The setup script will:
 2. Start PostgreSQL via Docker
 3. Build the project
 
+### Optional: Wiki Clone
+
+For local access to wiki documentation (auto-cloned by Claude Code's wiki skill):
+
+```bash
+# Derive wiki URL from your repo's origin
+REPO_URL=$(git remote get-url origin)
+git clone "${REPO_URL%.git}.wiki.git" docs/wiki
+```
+
+The `docs/wiki/` directory is gitignored - it's a separate repository.
+
 ## Project Structure
 
 ```
