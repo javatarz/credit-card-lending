@@ -26,6 +26,29 @@ You need a Docker engine to run PostgreSQL locally. Any of these will work:
 | **OrbStack** (macOS) | [Download](https://orbstack.dev/) |
 | **Rancher Desktop** | [Download](https://rancherdesktop.io/) |
 
+### pre-commit (optional but recommended)
+
+We use [pre-commit](https://pre-commit.com/) to validate documentation links before commits.
+
+**Install pre-commit:**
+```bash
+# macOS
+brew install pre-commit
+
+# or via pip
+pip install pre-commit
+```
+
+**Enable hooks:**
+```bash
+pre-commit install
+```
+
+This validates markdown links on every commit. To run manually:
+```bash
+pre-commit run --all-files
+```
+
 ## Quick Start
 
 ```bash

@@ -1,0 +1,21 @@
+{
+  "ignorePatterns": [
+    {
+      "pattern": "^https://github.com/javatarz/credit-card-lending/wiki"
+    },
+    {
+      "pattern": "^http://localhost"
+    }
+  ],
+  "replacementPatterns": [
+    {
+      "pattern": "^/",
+      "replacement": "{{BASEURL}}/"
+    }
+  ],
+  "timeout": "10s",
+  "retryOn429": true,
+  "retryCount": 3,
+  "fallbackRetryDelay": "5s",
+  "aliveStatusCodes": [200, 206]
+}
