@@ -67,4 +67,45 @@
         </createIndex>
     </changeSet>
 
+    <changeSet id="005-create-customer-profiles-table" author="claude">
+        <createTable tableName="customer_profiles" schemaName="customer">
+            <column name="customer_id" type="UUID">
+                <constraints primaryKey="true" nullable="false" foreignKeyName="fk_customer_profiles_customer" references="customer.customers(id)"/>
+            </column>
+            <column name="first_name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_of_birth" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ssn_encrypted" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ssn_last_four" type="VARCHAR(4)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="street_address" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="unit" type="VARCHAR(50)"/>
+            <column name="city" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="state" type="VARCHAR(2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="zip_code" type="VARCHAR(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="phone" type="VARCHAR(20)"/>
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP WITH TIME ZONE"/>
+        </createTable>
+    </changeSet>
+
 </databaseChangeLog>
