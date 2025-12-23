@@ -1,5 +1,14 @@
 # System Overview
 
+## Why Read This?
+
+Start here to understand the system architecture, tech stack, and module boundaries. This is the canonical source for technology choices.
+
+**Prerequisites:** None - this is the entry point
+**Related:** [glossary.md](glossary.md), [domain/](domain/), [modules/](modules/)
+
+---
+
 ## What is This?
 
 A credit card lending platform that handles the complete lifecycle of credit card products: customer onboarding, credit applications, account management, transaction processing, billing, and payments.

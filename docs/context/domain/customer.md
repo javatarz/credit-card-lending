@@ -1,5 +1,14 @@
 # Customer Domain
 
+## Why Read This?
+
+Business rules for customer registration, verification, and profile management. Read before implementing customer-related features.
+
+**Prerequisites:** [glossary.md](../glossary.md)
+**Related:** [modules/customer-module.md](../modules/customer-module.md) for implementation details
+
+---
+
 ## What is a Customer?
 
 A Customer is an individual who has registered with the platform. A customer may or may not have a credit card account - registration is the first step before applying for credit.

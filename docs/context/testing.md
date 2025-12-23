@@ -1,5 +1,16 @@
 # Testing Strategy
 
+## Why Read This?
+
+TDD principles, test pyramid, and testing tools. Read when writing tests or understanding the test approach.
+
+**Prerequisites:** [conventions.md](conventions.md) for code style
+**Related:** [conventions.md](conventions.md) covers git workflow and commit patterns
+
+**Scope clarification:** This doc covers *what* to test and *how* to approach testing (TDD, test types, tools). See [conventions.md](conventions.md) for code style, naming, and workflow conventions.
+
+---
+
 ## Philosophy
 
 We practice **Test-Driven Development (TDD)** as our primary development approach. Tests are not an afterthought - they drive design and provide confidence for change.

@@ -1,5 +1,14 @@
 # Current State
 
+## Why Read This?
+
+Quick reference for what's built vs planned. Check here before starting work to understand the current implementation status.
+
+**Prerequisites:** [overview.md](overview.md)
+**Related:** [modules/](modules/) for detailed module status
+
+---
+
 Last updated: Story #22
 
 ## What's Built

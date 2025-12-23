@@ -1,5 +1,14 @@
 # Customer Module
 
+## Why Read This?
+
+Technical implementation details for the customer module: package structure, APIs, database schema, and integration points.
+
+**Prerequisites:** [domain/customer.md](../domain/customer.md) for business rules
+**Related:** [conventions.md](../conventions.md) for code patterns
+
+---
+
 ## Responsibility
 
 Owns customer identity, registration, verification, and profile management. This is the entry point for all users before they can apply for credit.

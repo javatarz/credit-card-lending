@@ -1,5 +1,14 @@
 # Code Conventions
 
+## Why Read This?
+
+Code style, naming patterns, and git workflow. Read before writing or reviewing code.
+
+**Prerequisites:** [overview.md](overview.md)
+**Related:** [testing.md](testing.md) for TDD and test strategy
+
+---
+
 ## Design Principles
 
 ### Core Principles

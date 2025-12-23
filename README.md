@@ -106,17 +106,9 @@ claude
 
 ## Tech Stack
 
-| Component | Choice |
-|-----------|--------|
-| Language | Java 25 LTS |
-| Framework | Spring Boot 4.x (Spring Framework 7) |
-| Database | PostgreSQL 16.x |
-| Build | Gradle 9.x (Kotlin DSL) |
-| Migrations | Liquibase |
-| Infrastructure | Terraform, AWS ECS Fargate |
-| Testing | JUnit 5, AssertJ, Testcontainers, ArchUnit |
+Java 25 LTS, Spring Boot 4.x, PostgreSQL 16.x, Gradle 9.x.
 
-See [ADR-003](docs/adr/ADR-003-technology-stack.md) for detailed rationale.
+See [`docs/context/overview.md`](docs/context/overview.md) for full tech stack and [ADR-003](docs/adr/ADR-003-technology-stack.md) for rationale.
 
 ## Architecture
 

@@ -1,5 +1,14 @@
 # Glossary
 
+## Why Read This?
+
+Reference for domain terminology. Use these terms consistently in code, documentation, and conversations to maintain a shared language (per DDD principles).
+
+**Prerequisites:** [overview.md](overview.md)
+**Related:** [domain/](domain/) for business rules
+
+---
+
 Domain terms and definitions for the credit card lending platform.
 
 ## Customer & Identity

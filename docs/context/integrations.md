@@ -1,5 +1,14 @@
 # External Integrations
 
+## Why Read This?
+
+Reference for external system integrations: APIs, data formats, error handling, and simulation approach for MVP.
+
+**Prerequisites:** [overview.md](overview.md)
+**Related:** [modules/](modules/) for internal implementation details
+
+---
+
 ## Overview
 
 The platform integrates with external systems for card processing, credit bureau data, and notifications. In MVP, some integrations are simulated.

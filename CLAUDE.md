@@ -98,13 +98,8 @@ Which context documents need to be updated as part of this story?
 - Update ADR index when adding new records
 
 ## Tech Stack
-- Java 25 LTS
-- Spring Boot 4.x (Spring Framework 7)
-- PostgreSQL 16.x (RDS)
-- Gradle 9.x with Kotlin DSL
-- Liquibase for database migrations
-- Terraform for infrastructure
-- AWS ECS Fargate for deployment
+
+See [`docs/context/overview.md`](docs/context/overview.md) for the canonical tech stack reference.
 
 ## Project Structure
 - Modular monolith architecture
