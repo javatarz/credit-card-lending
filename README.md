@@ -114,21 +114,7 @@ See [`docs/context/overview.md`](docs/context/overview.md) for full tech stack a
 
 **Modular Monolith** with clear module boundaries, designed for future service extraction.
 
-```
-credit-card-lending/
-├── modules/           # Feature modules
-│   ├── customer/      # Customer identity & profile
-│   ├── application/   # Credit application processing
-│   ├── decisioning/   # Credit decision engine
-│   └── ...
-├── shared/            # Shared libraries
-│   ├── kernel/        # Domain primitives
-│   └── events/        # Event definitions
-└── platform/
-    └── api-gateway/   # API entry point
-```
-
-See the [Architecture Wiki](https://github.com/javatarz/credit-card-lending/wiki/Architecture) for details.
+See [`docs/context/overview.md`](docs/context/overview.md) for full architecture details and the [Architecture Wiki](https://github.com/javatarz/credit-card-lending/wiki/Architecture) for design docs.
 
 ## Contributing
 
