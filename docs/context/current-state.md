@@ -81,7 +81,7 @@ Quick reference for what's built vs planned. Check here before starting work to 
 
 ### Feature Modules
 
-#### Customer Module (Stories #21, #22)
+#### Customer Module (Stories #21, #22, #23)
 - [x] Customer registration (`POST /api/v1/customers`)
 - [x] Email validation (format, uniqueness)
 - [x] Password validation (8+ chars, uppercase, lowercase, number, special char)
@@ -94,6 +94,12 @@ Quick reference for what's built vs planned. Check here before starting work to 
 - [x] Verification tokens (UUID, 24-hour expiry, hashed storage)
 - [x] Rate limiting on resend (max 3 per hour)
 - [x] Token generation on CustomerRegisteredEvent
+- [x] Profile completion (`PUT /api/v1/customers/{customerId}/profile`)
+- [x] Profile validation (name, DOB 18+, SSN format, address, state codes)
+- [x] SSN encryption with AES-256-GCM (EncryptionService in shared:infrastructure)
+- [x] Custom validators (@AdultAge, @ValidSsn)
+- [x] PROFILE_COMPLETE status for customers
+- [x] Profile update support (same endpoint)
 
 ### CI/CD
 - [x] GitHub Action for documentation link validation (Story #43)
@@ -101,8 +107,10 @@ Quick reference for what's built vs planned. Check here before starting work to 
 
 ### Database
 - [x] Liquibase migrations for customer module
-- [x] `customer` schema with `customers` table
-- [x] `customer.verification_tokens` table for email verification
+- [x] `customer` schema with `customers`, `customer_profiles`, `verification_tokens` tables
+- [x] `customer.customers` - Customer accounts with status (PENDING_VERIFICATION, VERIFIED, PROFILE_COMPLETE)
+- [x] `customer.customer_profiles` - Customer personal information with encrypted SSN
+- [x] `customer.verification_tokens` - Email verification tokens
 
 ## MVP Scope
 
@@ -147,7 +155,7 @@ MVP covers the core credit card lifecycle. See epics labeled `mvp`.
 **Customer Module (P0 - in progress):**
 1. ~~#21 - S01.1: Customer Registration~~ ✓ Complete
 2. ~~#22 - S01.2: Email Verification~~ ✓ Complete
-3. #23 - S01.3: Profile Completion
+3. ~~#23 - S01.3: Profile Completion~~ ✓ Complete
 4. #24 - S01.4: Profile Management
 
 ## Technical Debt

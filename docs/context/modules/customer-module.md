@@ -19,7 +19,7 @@ Owns customer identity, registration, verification, and profile management. This
 |-------|--------|-------------|
 | #21 | ✅ Done | Customer Registration |
 | #22 | ✅ Done | Email Verification |
-| #23 | Pending | Profile Completion |
+| #23 | ✅ Done | Profile Completion |
 | #24 | Pending | Profile Management |
 
 ## Package Structure
@@ -41,21 +41,32 @@ me.karun.bank.credit.customer/
 │   ├── TokenNotFoundException.java       ✅
 │   ├── TokenExpiredException.java        ✅
 │   ├── RateLimitExceededException.java   ✅
-│   └── (future: profile DTOs)
+│   ├── ProfileRequest.java               ✅
+│   ├── ProfileResponse.java              ✅
+│   ├── AddressDto.java                   ✅
+│   ├── CustomerNotFoundException.java    ✅
+│   └── CustomerNotVerifiedException.java ✅
 ├── internal/               # Private implementation
 │   ├── config/
 │   │   └── CustomerConfig.java           ✅
 │   ├── domain/
 │   │   ├── Customer.java                 ✅
 │   │   ├── CustomerStatus.java           ✅
-│   │   ├── VerificationToken.java        ✅
-│   │   └── (future: CustomerProfile)
+│   │   ├── CustomerProfile.java          ✅
+│   │   ├── Address.java                  ✅
+│   │   └── VerificationToken.java        ✅
 │   ├── repository/
 │   │   ├── CustomerRepository.java       ✅
+│   │   ├── CustomerProfileRepository.java ✅
 │   │   └── VerificationTokenRepository.java ✅
-│   └── service/
-│       ├── CustomerServiceImpl.java      ✅
-│       └── VerificationTokenService.java ✅
+│   ├── service/
+│   │   ├── CustomerServiceImpl.java      ✅
+│   │   └── VerificationTokenService.java ✅
+│   └── validation/
+│       ├── AdultAge.java                 ✅
+│       ├── AdultAgeValidator.java        ✅
+│       ├── ValidSsn.java                 ✅
+│       └── SsnValidator.java             ✅
 └── web/                    # REST controllers
     ├── CustomerController.java           ✅
     └── CustomerExceptionHandler.java     ✅
@@ -113,8 +124,8 @@ CREATE TABLE customer.verification_tokens (
 | POST | `/api/v1/customers` | Register new customer | ✅ |
 | POST | `/api/v1/customers/verify-email` | Verify email | ✅ |
 | POST | `/api/v1/customers/resend-verification` | Resend verification email | ✅ |
+| PUT | `/api/v1/customers/{customerId}/profile` | Complete/update profile | ✅ (temp auth) |
 | GET | `/api/v1/customers/me/profile` | Get own profile | Planned |
-| PUT | `/api/v1/customers/me/profile` | Update own profile | Planned |
 
 ### CustomerService Interface
 
@@ -123,8 +134,8 @@ public interface CustomerService {
     RegistrationResponse register(RegistrationRequest request);           // ✅ Implemented
     VerifyEmailResponse verifyEmail(VerifyEmailRequest request);          // ✅ Implemented
     ResendVerificationResponse resendVerification(ResendVerificationRequest request); // ✅ Implemented
+    ProfileResponse completeProfile(String customerId, ProfileRequest request); // ✅ Implemented
     ProfileResponse getProfile(String customerId);                        // Planned
-    ProfileResponse updateProfile(String customerId, ProfileRequest request); // Planned
     boolean isProfileComplete(String customerId);                         // Planned
 }
 ```
