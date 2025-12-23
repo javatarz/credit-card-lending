@@ -67,6 +67,10 @@ public class Customer {
     }
 
     public boolean isVerified() {
-        return this.status == CustomerStatus.VERIFIED;
+        return this.status == CustomerStatus.VERIFIED || this.status == CustomerStatus.PROFILE_COMPLETE;
+    }
+
+    public void completeProfile() {
+        this.status = CustomerStatus.PROFILE_COMPLETE;
     }
 }

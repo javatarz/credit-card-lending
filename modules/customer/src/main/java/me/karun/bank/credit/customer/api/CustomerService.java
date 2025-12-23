@@ -6,4 +6,6 @@ public interface CustomerService {
     VerifyEmailResponse verifyEmail(VerifyEmailRequest request);
 
     ResendVerificationResponse resendVerification(ResendVerificationRequest request);
+
+    ProfileResponse completeProfile(String customerId, ProfileRequest request);
 }

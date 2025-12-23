@@ -4,8 +4,10 @@ import me.karun.bank.credit.customer.api.*;
 import me.karun.bank.credit.customer.internal.domain.Customer;
 import me.karun.bank.credit.customer.internal.domain.CustomerStatus;
 import me.karun.bank.credit.customer.internal.domain.VerificationToken;
+import me.karun.bank.credit.customer.internal.repository.CustomerProfileRepository;
 import me.karun.bank.credit.customer.internal.repository.CustomerRepository;
 import me.karun.bank.credit.customer.internal.repository.VerificationTokenRepository;
+import me.karun.bank.credit.infrastructure.encryption.EncryptionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -30,17 +32,21 @@ class CustomerServiceTest {
 
     private CustomerRepository customerRepository;
     private VerificationTokenRepository tokenRepository;
+    private CustomerProfileRepository profileRepository;
     private PasswordEncoder passwordEncoder;
     private ApplicationEventPublisher eventPublisher;
+    private EncryptionService encryptionService;
     private CustomerServiceImpl service;
 
     @BeforeEach
     void setUp() {
         customerRepository = mock(CustomerRepository.class);
         tokenRepository = mock(VerificationTokenRepository.class);
+        profileRepository = mock(CustomerProfileRepository.class);
         passwordEncoder = new BCryptPasswordEncoder(12);
         eventPublisher = mock(ApplicationEventPublisher.class);
-        service = new CustomerServiceImpl(customerRepository, tokenRepository, passwordEncoder, eventPublisher);
+        encryptionService = mock(EncryptionService.class);
+        service = new CustomerServiceImpl(customerRepository, tokenRepository, profileRepository, passwordEncoder, eventPublisher, encryptionService);
     }
 
     @Test

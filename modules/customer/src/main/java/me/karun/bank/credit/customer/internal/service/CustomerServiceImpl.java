@@ -1,11 +1,15 @@
 package me.karun.bank.credit.customer.internal.service;
 
 import me.karun.bank.credit.customer.api.*;
+import me.karun.bank.credit.customer.internal.domain.Address;
 import me.karun.bank.credit.customer.internal.domain.Customer;
+import me.karun.bank.credit.customer.internal.domain.CustomerProfile;
 import me.karun.bank.credit.customer.internal.domain.CustomerStatus;
 import me.karun.bank.credit.customer.internal.domain.VerificationToken;
+import me.karun.bank.credit.customer.internal.repository.CustomerProfileRepository;
 import me.karun.bank.credit.customer.internal.repository.CustomerRepository;
 import me.karun.bank.credit.customer.internal.repository.VerificationTokenRepository;
+import me.karun.bank.credit.infrastructure.encryption.EncryptionService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -13,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 @Service
@@ -26,18 +31,24 @@ public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
     private final VerificationTokenRepository tokenRepository;
+    private final CustomerProfileRepository profileRepository;
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
+    private final EncryptionService encryptionService;
 
     public CustomerServiceImpl(
             CustomerRepository customerRepository,
             VerificationTokenRepository tokenRepository,
+            CustomerProfileRepository profileRepository,
             PasswordEncoder passwordEncoder,
-            ApplicationEventPublisher eventPublisher) {
+            ApplicationEventPublisher eventPublisher,
+            EncryptionService encryptionService) {
         this.customerRepository = customerRepository;
         this.tokenRepository = tokenRepository;
+        this.profileRepository = profileRepository;
         this.passwordEncoder = passwordEncoder;
         this.eventPublisher = eventPublisher;
+        this.encryptionService = encryptionService;
     }
 
     @Override
@@ -180,5 +191,78 @@ public class CustomerServiceImpl implements CustomerService {
         if (!password.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?].*")) {
             throw new WeakPasswordException("Password must contain at least one special character");
         }
+    }
+
+    @Override
+    @Transactional
+    public ProfileResponse completeProfile(String customerId, ProfileRequest request) {
+        var customer = customerRepository.findById(UUID.fromString(customerId))
+                .orElseThrow(() -> new CustomerNotFoundException("Customer not found"));
+
+        if (!customer.isVerified()) {
+            throw new CustomerNotVerifiedException("Customer must verify email before completing profile");
+        }
+
+        var encryptedSsn = encryptionService.encrypt(request.ssn());
+        var ssnLastFour = request.ssn().substring(request.ssn().length() - 4);
+
+        var address = new Address(
+                request.address().street(),
+                request.address().unit(),
+                request.address().city(),
+                request.address().state(),
+                request.address().zipCode()
+        );
+
+        var existingProfile = profileRepository.findById(UUID.fromString(customerId));
+        if (existingProfile.isPresent()) {
+            var profile = existingProfile.get();
+            profile.update(
+                    request.firstName(),
+                    request.lastName(),
+                    request.dateOfBirth(),
+                    encryptedSsn,
+                    ssnLastFour,
+                    address,
+                    request.phone()
+            );
+            profileRepository.save(profile);
+        } else {
+            var profile = new CustomerProfile(
+                    UUID.fromString(customerId),
+                    request.firstName(),
+                    request.lastName(),
+                    request.dateOfBirth(),
+                    encryptedSsn,
+                    ssnLastFour,
+                    address,
+                    request.phone()
+            );
+            profileRepository.save(profile);
+
+            customer.completeProfile();
+            customerRepository.save(customer);
+        }
+
+        var updatedProfile = profileRepository.findById(UUID.fromString(customerId)).get();
+        var updatedCustomer = customerRepository.findById(UUID.fromString(customerId)).get();
+
+        return new ProfileResponse(
+                updatedCustomer.getId(),
+                updatedProfile.getFirstName(),
+                updatedProfile.getLastName(),
+                updatedProfile.getDateOfBirth(),
+                updatedProfile.getSsnLastFour(),
+                new AddressDto(
+                        updatedProfile.getAddress().getStreet(),
+                        updatedProfile.getAddress().getUnit(),
+                        updatedProfile.getAddress().getCity(),
+                        updatedProfile.getAddress().getState(),
+                        updatedProfile.getAddress().getZipCode()
+                ),
+                updatedProfile.getPhone(),
+                updatedCustomer.getStatus().name(),
+                updatedProfile.getUpdatedAt() != null ? updatedProfile.getUpdatedAt() : updatedProfile.getCreatedAt()
+        );
     }
 }
