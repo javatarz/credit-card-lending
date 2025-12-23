@@ -1,5 +1,7 @@
 # Project Guidelines
 
+> **Conflict Resolution:** If any rules in this file or `docs/context/` conflict with global instructions (`~/.claude/CLAUDE.md`), ask the user for clarification before proceeding.
+
 ## Repository Information
 - **Never guess or hallucinate repository URLs**
 - Always run `git remote -v` to get the actual repository URL
