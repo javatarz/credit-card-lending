@@ -376,8 +376,19 @@ We use **trunk-based development** - all work happens on `main`:
 
 <optional body - why, not how>
 
-<optional footer - Closes #N>
+<optional: Closes #N>
 ```
+
+### Closing Issues
+
+Use `Closes #N` in commit footer to auto-close issues when pushed. This ties closure to the code change atomically.
+
+| Footer Keyword | Effect |
+|----------------|--------|
+| `Closes #N` | Closes issue #N when commit is pushed to default branch |
+| `Fixes #N` | Same as Closes (use for bug fixes) |
+
+**When to close:** Include `Closes #N` only in the **final commit** of a story/task. Intermediate commits reference the issue (`#N` in subject) but don't close it.
 
 ### Type Prefixes
 

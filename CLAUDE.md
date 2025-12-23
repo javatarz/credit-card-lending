@@ -56,6 +56,46 @@ See [`docs/context/overview.md`](docs/context/overview.md) for the canonical tec
 - Link stories to parent epics
 - Use module labels (e.g., `module:customer`)
 
+## Git Workflow
+
+### Behavioral Rules
+
+| Rule | Description |
+|------|-------------|
+| **Never commit without user confirmation** | Explain what will be committed and why, then wait for approval |
+| **Never push without asking** | Always confirm before pushing to remote |
+| **Smallest independent change** | Each commit should be the smallest change that doesn't break the system |
+| **Prefer many small commits** | Over few large ones - easier to review and revert |
+
+### Commit Message Format
+
+```
+<type prefix><subject> #N
+
+<optional body - why, not how>
+
+<optional: Closes #N>
+```
+
+| Rule | Description |
+|------|-------------|
+| **Imperative mood** | "Add feature" not "Added feature" |
+| **Subject ≤ 50 chars** | Excludes issue reference |
+| **Capitalize subject** | "Add validation" not "add validation" |
+| **No trailing period** | Wastes space |
+| **Reference the issue** | Append `#N` for traceability |
+| **Close via footer** | Use `Closes #N` only in final commit to auto-close issue |
+
+**Type prefixes:** `Add`, `Fix`, `Update`, `Remove`, `Refactor`, `Rename`, `Move`, `Docs`, `Test`, `Config`
+
+### Squashing Workflow
+
+Only squash unpushed commits that logically belong together:
+```bash
+git commit --fixup=<commit>
+GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash <commit>~1
+```
+
 ## Ubiquitous Language
 
 Use terminology from `docs/context/glossary.md` consistently across all documentation and code. This maintains a shared language between business and technical domains (per Domain-Driven Design principles).
@@ -89,3 +129,38 @@ The GitHub Wiki contains architecture and design documentation. Access it via th
 **Writing:** Edit locally, then ask to push (requires approval).
 
 **Fallback:** If clone fails, skill provides online wiki URL.
+
+## Development Skills
+
+Model-invoked skills that activate automatically based on context.
+
+### TDD Skill
+
+Enforces Test-Driven Development when writing code.
+
+| Aspect | Details |
+|--------|---------|
+| Activates | When implementing features, fixing bugs, writing code |
+| Bypass | Say "quick fix" or "no tdd" |
+| Location | `.claude/skills/tdd/SKILL.md` |
+
+**Review Modes:**
+
+| Mode | Command | When Reviews Happen |
+|------|---------|---------------------|
+| Interactive (default) | `use interactive` | After each Red-Green cycle |
+| Batch AC | `use batch-ac` | After each acceptance criterion |
+| Batch Story | `use batch-story` | After all criteria complete |
+| Autonomous | `use autonomous [strict/normal/relaxed]` | Agent reviews continuously |
+
+### Review Skill
+
+Assesses code quality with configurable strictness.
+
+| Aspect | Details |
+|--------|---------|
+| Activates | After code changes, on "review" requests, in TDD autonomous mode |
+| Thresholds | `strict` (everything), `normal` (significant), `relaxed` (blockers only) |
+| Location | `.claude/skills/review/SKILL.md` |
+
+**Output:** Structured findings (Blockers, Warnings, Suggestions) with verdict (PASS/NEEDS ATTENTION/BLOCKED).

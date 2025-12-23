@@ -52,60 +52,32 @@ You are helping the user develop a story using Test-Driven Development (TDD).
 
 ## Phase 3: Test-Driven Development
 
-Follow the **Red-Green-Refactor** cycle. See `docs/context/testing.md` for the full principles.
+**Delegate to TDD skill** for Red-Green-Refactor workflow.
 
-### The Workflow
+The TDD skill handles:
+- Writing failing tests (RED)
+- Making tests pass (GREEN)
+- Cleaning up code (REFACTOR)
+- Committing changes
 
-For each piece of functionality:
+### Review Mode
 
-#### RED: Write a Failing Test
+Default is **interactive** (user reviews each cycle). User can change mode:
 
-1. Identify the next small piece of functionality
-2. Write the test (just enough to fail)
-3. **Show the test to the user** and explain what it's testing
-4. **Wait for user feedback** - they may suggest changes
-5. Run the test:
-   ```bash
-   ./gradlew test
-   ```
-6. **Confirm RED**: You MUST see the test fail
-   - If it passes: STOP and discuss - this is suspicious
+| Mode | Command | Behavior |
+|------|---------|----------|
+| Interactive | `use interactive` | Review each Red-Green cycle |
+| Batch AC | `use batch-ac` | Review after each acceptance criterion |
+| Batch Story | `use batch-story` | Review after all criteria complete |
+| Autonomous | `use autonomous [strict/normal/relaxed]` | Agent reviews with threshold |
 
-#### GREEN: Make it Pass
+### Working Through Acceptance Criteria
 
-1. Choose a technique (Fake It, Obvious Implementation, or Triangulation - see testing.md)
-2. Write minimum code to pass
-3. **Show the implementation** to the user
-4. Run the test:
-   ```bash
-   ./gradlew test
-   ```
-5. **Confirm GREEN**: You MUST see the test pass before proceeding
-
-#### REFACTOR: Clean Up
-
-1. Look for duplication (primary target)
-2. **Suggest refactorings** if you see opportunities
-3. **Ask the user**: "Any refactoring you'd like to do before we commit?"
-4. **Trust the user's judgment** - if they say skip, skip
-5. If refactoring: Run tests again to ensure still GREEN
-
-**STOP: Wait for user confirmation before proceeding to commit.**
-
-#### COMMIT
-
-**Only after user confirms they are ready:**
-```bash
-git add -A && git commit -m "<descriptive message>
-
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>"
-```
-
-### Repeat
-
-Continue until the current acceptance criterion is complete, then move to the next one.
+For each acceptance criterion:
+1. Follow TDD skill workflow (Red-Green-Refactor cycles)
+2. At review point (based on mode), get user feedback
+3. Address feedback before moving to next criterion
+4. Mark criterion complete when all tests pass and user approves
 
 ## Phase 4: Completion
 
@@ -121,17 +93,14 @@ When **all acceptance criteria are met**:
    - Update any domain or module docs if behavior changed
    - Commit documentation updates
 
-3. **Push to main** (trunk-based development):
+3. **Final commit with Closes footer**:
+   The last commit should include `Closes #<issue-number>` in the footer to auto-close the story when pushed.
+
+4. **Push to main** (trunk-based development):
    ```bash
    git push origin main
    ```
-
-4. **Close the story**:
-   ```bash
-   gh issue close <issue-number> --comment "Implemented and pushed to main.
-
-   🤖 Generated with [Claude Code](https://claude.com/claude-code)"
-   ```
+   Story auto-closes via the `Closes #N` footer.
 
 5. **Report completion** to the user
 
