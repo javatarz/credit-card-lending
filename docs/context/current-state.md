@@ -45,6 +45,16 @@ Quick reference for what's built vs planned. Check here before starting work to 
   - `CONTRIBUTING.md` - Comprehensive contribution guidelines
   - Gradle docker-compose plugin - Auto-starts PostgreSQL on `bootRun`
   - Trunk-based development workflow documented
+- [x] Context documentation efficiency (Story #43):
+  - `docs/context/README.md` - Navigation map with "I want to..." goals
+  - Domain and module templates (`docs/context/domain/README.md`, `docs/context/modules/README.md`)
+  - "Why read this?" headers on all context files
+  - `CLAUDE.md` reduced from 166 → 75 lines
+  - Story template extracted to `docs/templates/story.md`
+  - Tech stack consolidated to `overview.md` as single source
+  - Pre-commit hook for markdown link validation
+  - GitHub Action for CI link validation
+  - Commit message conventions documented (Story #44)
 
 ### Testing & Developer Workflow (Story #29)
 - [x] Testing strategy documented (`docs/context/testing.md`)
@@ -72,7 +82,7 @@ Quick reference for what's built vs planned. Check here before starting work to 
 - [x] Token generation on CustomerRegisteredEvent
 
 ### CI/CD
-- [ ] GitHub Actions not configured
+- [x] GitHub Action for documentation link validation (Story #43)
 - [ ] No automated testing pipeline
 
 ### Database
