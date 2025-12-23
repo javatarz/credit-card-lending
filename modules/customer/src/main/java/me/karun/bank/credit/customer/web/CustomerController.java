@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import me.karun.bank.credit.customer.api.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -62,5 +63,25 @@ public class CustomerController {
     })
     public ResendVerificationResponse resendVerification(@RequestBody ResendVerificationRequest request) {
         return customerService.resendVerification(request);
+    }
+
+    // TODO #49: Replace path param with @AuthenticationPrincipal after auth implementation
+    // Will become: PUT /api/v1/customers/me/profile with customer ID from SecurityContext
+    @PutMapping("/{customerId}/profile")
+    @Operation(summary = "Complete customer profile", description = "Submit personal information required for credit application")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Profile completed successfully",
+                    content = @Content(schema = @Schema(implementation = ProfileResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid profile data",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "403", description = "Customer not verified",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "404", description = "Customer not found",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
+    })
+    public ProfileResponse completeProfile(
+            @PathVariable String customerId,
+            @Valid @RequestBody ProfileRequest request) {
+        return customerService.completeProfile(customerId, request);
     }
 }
