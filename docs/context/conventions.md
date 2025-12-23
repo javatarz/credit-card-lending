@@ -347,29 +347,71 @@ We use **trunk-based development** - all work happens on `main`:
 - **Simpler workflow** - Less git ceremony
 - **Encourages small changes** - Easier to review history
 
-### Commit Guidelines
+### Commit Message Rules
 
-```bash
-# Good: Small, focused commits
-git commit -m "Add email validation to registration"
-git commit -m "Return 400 for invalid email format"
-git commit -m "Add uniqueness check for email"
-
-# Bad: Large, bundled commits
-git commit -m "Implement customer registration with validation"
-```
+| Rule | Description |
+|------|-------------|
+| **Imperative mood** | "Add feature" not "Added feature". Test: "If applied, this commit will _[subject]_" |
+| **Subject ≤ 50 chars** | Aim for 50, hard limit 72. Forces conciseness. (excludes issue reference) |
+| **Capitalize subject** | "Add validation" not "add validation" |
+| **No trailing period** | Wastes space, unnecessary |
+| **Reference the issue** | Append `#N` for traceability. Omit only for trivial chores. |
+| **One logical change** | Each Red-Green-Refactor cycle = one commit. Enables clean reverts. |
+| **Body explains why** | Code shows how. Body explains motivation, trade-offs, context. |
+| **No manual line wrap** | Let tools handle body text display |
 
 ### Commit Message Format
 
 ```
-<summary line - what changed>
+<subject> #N
 
-<optional body - why it changed>
+<optional body - why, not how>
 
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>
+<optional footer - Closes #N>
 ```
+
+### Type Prefixes
+
+Start subjects with a verb indicating the change type:
+
+| Prefix | Use When |
+|--------|----------|
+| `Add` | New feature, file, or capability |
+| `Fix` | Bug fix |
+| `Update` | Enhance existing feature |
+| `Remove` | Delete code, feature, or file |
+| `Refactor` | Code change with no behavior change |
+| `Rename` | Rename file, class, or variable |
+| `Move` | Relocate code without changing it |
+| `Docs` | Documentation only |
+| `Test` | Test only (no production code) |
+| `Config` | Configuration changes |
+
+### Commit Message Examples
+
+```bash
+# Good: focused, traceable
+git commit -m "Add email validation to registration #22"
+git commit -m "Add VerificationToken entity with expiry #22"
+git commit -m "Fix null pointer when customer email missing #25"
+
+# Good: with body for complex changes
+git commit -m "Add rate limiting to registration endpoint #28" -m "
+Prevents abuse by limiting to 5 attempts per IP per hour.
+Uses bucket4j with Redis backend.
+
+Closes #28"
+
+# Bad: vague, bundled, or missing context
+git commit -m "Fix bug"                    # Too vague, no issue
+git commit -m "Added email validation"     # Past tense
+git commit -m "Implement registration with validation, events, and tests"  # Too many changes
+```
+
+### What NOT to Include in Commits
+
+- **No file lists** - The diff shows what changed
+- **No "how" explanations** - Code is self-documenting; explain "why" instead
 
 ### Before Pushing
 
