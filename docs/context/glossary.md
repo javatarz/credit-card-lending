@@ -17,6 +17,8 @@ Domain terms and definitions for the credit card lending platform.
 |------|------------|
 | **Customer** | An individual who has registered with the platform. May or may not have an account. |
 | **Profile** | Customer's personal information: name, address, contact details, SSN. |
+| **Immutable Field** | Profile field that cannot be changed after initial submission (e.g., SSN, DOB, name, email). Protects against identity fraud. |
+| **Audit Log** | Record of changes to customer data, tracking who changed what and when. Required for compliance and customer support. |
 | **KYC** | Know Your Customer - identity verification process required before account opening. |
 | **PII** | Personally Identifiable Information - SSN, DOB, address. Stored in `customer` schema. |
 

@@ -73,6 +73,32 @@ REGISTERED → PENDING_VERIFICATION → VERIFIED → PROFILE_COMPLETE
 - SSN encrypted at rest
 - Age must be 18+ at time of application
 
+### Profile Management
+- **Immutable fields** (cannot change after profile completion): firstName, lastName, dateOfBirth, ssn, email
+- **Mutable fields** (can be updated): address, phone
+- Attempts to update immutable fields rejected (400 Bad Request)
+- All profile changes recorded in audit log (field-level tracking)
+- PATCH semantics supported for partial updates
+
+## Audit Logging
+
+Profile changes are recorded in `customer.profile_audit` table:
+
+| Field | Description |
+|-------|-------------|
+| customerId | Who's profile changed |
+| fieldName | Which field changed (e.g., "address.street", "phone") |
+| oldValue | Previous value (SSN masked) |
+| newValue | New value (SSN masked) |
+| changedAt | When change occurred |
+| changedBy | Who made the change (customerId) |
+
+**Audit rules:**
+- All mutable field changes recorded (address, phone)
+- Changes recorded at field level (not entire profile)
+- SSN never stored in audit log (masked if referenced)
+- Provides compliance trail for customer data changes
+
 ## Events
 
 | Event | Trigger | Consumers |
@@ -85,11 +111,12 @@ REGISTERED → PENDING_VERIFICATION → VERIFIED → PROFILE_COMPLETE
 
 | Method | Path | Description |
 |--------|------|-------------|
-| POST | `/api/v1/customers/register` | Create account |
-| POST | `/api/v1/customers/verify` | Verify email token |
+| POST | `/api/v1/customers` | Create account |
+| POST | `/api/v1/customers/verify-email` | Verify email token |
 | POST | `/api/v1/customers/resend-verification` | Resend verification email |
-| GET | `/api/v1/customers/me/profile` | Get current profile |
-| PUT | `/api/v1/customers/me/profile` | Update profile |
+| PUT | `/api/v1/customers/{customerId}/profile` | Complete/update profile (full) |
+| GET | `/api/v1/customers/{customerId}/profile` | View profile |
+| PATCH | `/api/v1/customers/{customerId}/profile` | Update profile (partial) |
 
 ## Data Storage
 
