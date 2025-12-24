@@ -5,9 +5,11 @@ import me.karun.bank.credit.customer.internal.domain.Address;
 import me.karun.bank.credit.customer.internal.domain.Customer;
 import me.karun.bank.credit.customer.internal.domain.CustomerProfile;
 import me.karun.bank.credit.customer.internal.domain.CustomerStatus;
+import me.karun.bank.credit.customer.internal.domain.ProfileAudit;
 import me.karun.bank.credit.customer.internal.domain.VerificationToken;
 import me.karun.bank.credit.customer.internal.repository.CustomerProfileRepository;
 import me.karun.bank.credit.customer.internal.repository.CustomerRepository;
+import me.karun.bank.credit.customer.internal.repository.ProfileAuditRepository;
 import me.karun.bank.credit.customer.internal.repository.VerificationTokenRepository;
 import me.karun.bank.credit.infrastructure.encryption.EncryptionService;
 import org.springframework.context.ApplicationEventPublisher;
@@ -32,6 +34,7 @@ public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository customerRepository;
     private final VerificationTokenRepository tokenRepository;
     private final CustomerProfileRepository profileRepository;
+    private final ProfileAuditRepository auditRepository;
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
     private final EncryptionService encryptionService;
@@ -40,12 +43,14 @@ public class CustomerServiceImpl implements CustomerService {
             CustomerRepository customerRepository,
             VerificationTokenRepository tokenRepository,
             CustomerProfileRepository profileRepository,
+            ProfileAuditRepository auditRepository,
             PasswordEncoder passwordEncoder,
             ApplicationEventPublisher eventPublisher,
             EncryptionService encryptionService) {
         this.customerRepository = customerRepository;
         this.tokenRepository = tokenRepository;
         this.profileRepository = profileRepository;
+        this.auditRepository = auditRepository;
         this.passwordEncoder = passwordEncoder;
         this.eventPublisher = eventPublisher;
         this.encryptionService = encryptionService;
@@ -264,13 +269,15 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     @Transactional
     public ProfileResponse updateProfile(String customerId, ProfileUpdateRequest request) {
-        var customer = customerRepository.findById(UUID.fromString(customerId))
+        var customerUuid = UUID.fromString(customerId);
+        var customer = customerRepository.findById(customerUuid)
                 .orElseThrow(() -> new CustomerNotFoundException("Customer not found"));
 
-        var profile = profileRepository.findById(UUID.fromString(customerId))
+        var profile = profileRepository.findById(customerUuid)
                 .orElseThrow(() -> new CustomerNotFoundException("Profile not found"));
 
         request.address().ifPresent(addressDto -> {
+            var oldAddress = profile.getAddress();
             var newAddress = new Address(
                     addressDto.street(),
                     addressDto.unit(),
@@ -279,13 +286,41 @@ public class CustomerServiceImpl implements CustomerService {
                     addressDto.zipCode()
             );
             profile.updateAddress(newAddress);
+            auditAddressChange(customerUuid, oldAddress, newAddress);
         });
 
-        request.phone().ifPresent(profile::updatePhone);
+        request.phone().ifPresent(newPhone -> {
+            var oldPhone = profile.getPhone();
+            profile.updatePhone(newPhone);
+            auditFieldChange(customerUuid, "phone", oldPhone, newPhone);
+        });
 
         profileRepository.save(profile);
 
         return toProfileResponse(customer, profile);
+    }
+
+    private void auditAddressChange(UUID customerId, Address oldAddress, Address newAddress) {
+        if (!oldAddress.getStreet().equals(newAddress.getStreet())) {
+            auditFieldChange(customerId, "address.street", oldAddress.getStreet(), newAddress.getStreet());
+        }
+        if (!java.util.Objects.equals(oldAddress.getUnit(), newAddress.getUnit())) {
+            auditFieldChange(customerId, "address.unit", oldAddress.getUnit(), newAddress.getUnit());
+        }
+        if (!oldAddress.getCity().equals(newAddress.getCity())) {
+            auditFieldChange(customerId, "address.city", oldAddress.getCity(), newAddress.getCity());
+        }
+        if (!oldAddress.getState().equals(newAddress.getState())) {
+            auditFieldChange(customerId, "address.state", oldAddress.getState(), newAddress.getState());
+        }
+        if (!oldAddress.getZipCode().equals(newAddress.getZipCode())) {
+            auditFieldChange(customerId, "address.zipCode", oldAddress.getZipCode(), newAddress.getZipCode());
+        }
+    }
+
+    private void auditFieldChange(UUID customerId, String fieldName, String oldValue, String newValue) {
+        var audit = new ProfileAudit(customerId, fieldName, oldValue, newValue, customerId);
+        auditRepository.save(audit);
     }
 
     private ProfileResponse toProfileResponse(Customer customer, CustomerProfile profile) {

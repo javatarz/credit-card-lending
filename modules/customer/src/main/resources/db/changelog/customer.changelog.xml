@@ -108,4 +108,34 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="006-create-profile-audit-table" author="claude">
+        <createTable tableName="profile_audit" schemaName="customer">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="customer_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_profile_audit_customer" references="customer.customers(id)"/>
+            </column>
+            <column name="field_name" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="old_value" type="TEXT"/>
+            <column name="new_value" type="TEXT"/>
+            <column name="changed_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="changed_by" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="profile_audit" schemaName="customer" indexName="idx_profile_audit_customer">
+            <column name="customer_id"/>
+        </createIndex>
+
+        <createIndex tableName="profile_audit" schemaName="customer" indexName="idx_profile_audit_changed_at">
+            <column name="changed_at"/>
+        </createIndex>
+    </changeSet>
+
 </databaseChangeLog>

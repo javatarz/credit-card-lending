@@ -33,6 +33,7 @@ class CustomerServiceTest {
     private CustomerRepository customerRepository;
     private VerificationTokenRepository tokenRepository;
     private CustomerProfileRepository profileRepository;
+    private me.karun.bank.credit.customer.internal.repository.ProfileAuditRepository auditRepository;
     private PasswordEncoder passwordEncoder;
     private ApplicationEventPublisher eventPublisher;
     private EncryptionService encryptionService;
@@ -43,10 +44,11 @@ class CustomerServiceTest {
         customerRepository = mock(CustomerRepository.class);
         tokenRepository = mock(VerificationTokenRepository.class);
         profileRepository = mock(CustomerProfileRepository.class);
+        auditRepository = mock(me.karun.bank.credit.customer.internal.repository.ProfileAuditRepository.class);
         passwordEncoder = new BCryptPasswordEncoder(12);
         eventPublisher = mock(ApplicationEventPublisher.class);
         encryptionService = mock(EncryptionService.class);
-        service = new CustomerServiceImpl(customerRepository, tokenRepository, profileRepository, passwordEncoder, eventPublisher, encryptionService);
+        service = new CustomerServiceImpl(customerRepository, tokenRepository, profileRepository, auditRepository, passwordEncoder, eventPublisher, encryptionService);
     }
 
     @Test
