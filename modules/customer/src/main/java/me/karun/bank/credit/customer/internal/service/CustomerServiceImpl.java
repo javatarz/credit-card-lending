@@ -261,6 +261,33 @@ public class CustomerServiceImpl implements CustomerService {
         return toProfileResponse(customer, profile);
     }
 
+    @Override
+    @Transactional
+    public ProfileResponse updateProfile(String customerId, ProfileUpdateRequest request) {
+        var customer = customerRepository.findById(UUID.fromString(customerId))
+                .orElseThrow(() -> new CustomerNotFoundException("Customer not found"));
+
+        var profile = profileRepository.findById(UUID.fromString(customerId))
+                .orElseThrow(() -> new CustomerNotFoundException("Profile not found"));
+
+        request.address().ifPresent(addressDto -> {
+            var newAddress = new Address(
+                    addressDto.street(),
+                    addressDto.unit(),
+                    addressDto.city(),
+                    addressDto.state(),
+                    addressDto.zipCode()
+            );
+            profile.updateAddress(newAddress);
+        });
+
+        request.phone().ifPresent(profile::updatePhone);
+
+        profileRepository.save(profile);
+
+        return toProfileResponse(customer, profile);
+    }
+
     private ProfileResponse toProfileResponse(Customer customer, CustomerProfile profile) {
         return new ProfileResponse(
                 customer.getId(),

@@ -96,4 +96,18 @@ public class CustomerController {
     public ProfileResponse getProfile(@PathVariable String customerId) {
         return customerService.getProfile(customerId);
     }
+
+    @PatchMapping("/{customerId}/profile")
+    @Operation(summary = "Update customer profile", description = "Partially update mutable profile fields (address, phone). Immutable fields cannot be changed.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Profile updated successfully",
+                    content = @Content(schema = @Schema(implementation = ProfileResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Customer or profile not found",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
+    })
+    public ProfileResponse updateProfile(
+            @PathVariable String customerId,
+            @Valid @RequestBody ProfileUpdateRequest request) {
+        return customerService.updateProfile(customerId, request);
+    }
 }

@@ -337,4 +337,56 @@ class CustomerServiceTest {
                 "+1-555-123-4567"
         );
     }
+
+    @Test
+    void shouldUpdateAddress_whenPatchRequestWithAddressOnly() {
+        var customerId = UUID.randomUUID();
+        var customer = new Customer("user@example.com", "hash", CustomerStatus.PROFILE_COMPLETE, Instant.now());
+        ReflectionTestUtils.setField(customer, "id", customerId);
+        var existingProfile = createTestProfile(customerId);
+        var newAddress = new AddressDto("456 Oak Ave", null, "Brooklyn", "NY", "11201");
+        var updateRequest = new ProfileUpdateRequest(java.util.Optional.of(newAddress), java.util.Optional.empty());
+        when(customerRepository.findById(customerId)).thenReturn(java.util.Optional.of(customer));
+        when(profileRepository.findById(customerId)).thenReturn(java.util.Optional.of(existingProfile));
+
+        var response = service.updateProfile(customerId.toString(), updateRequest);
+
+        assertThat(response.address().street()).isEqualTo("456 Oak Ave");
+        assertThat(response.address().city()).isEqualTo("Brooklyn");
+        assertThat(response.phone()).isEqualTo("+1-555-123-4567");
+    }
+
+    @Test
+    void shouldUpdatePhone_whenPatchRequestWithPhoneOnly() {
+        var customerId = UUID.randomUUID();
+        var customer = new Customer("user@example.com", "hash", CustomerStatus.PROFILE_COMPLETE, Instant.now());
+        ReflectionTestUtils.setField(customer, "id", customerId);
+        var existingProfile = createTestProfile(customerId);
+        var updateRequest = new ProfileUpdateRequest(java.util.Optional.empty(), java.util.Optional.of("+1-555-999-8888"));
+        when(customerRepository.findById(customerId)).thenReturn(java.util.Optional.of(customer));
+        when(profileRepository.findById(customerId)).thenReturn(java.util.Optional.of(existingProfile));
+
+        var response = service.updateProfile(customerId.toString(), updateRequest);
+
+        assertThat(response.phone()).isEqualTo("+1-555-999-8888");
+        assertThat(response.address().street()).isEqualTo("123 Main St");
+    }
+
+    @Test
+    void shouldUpdateBoth_whenPatchRequestWithAddressAndPhone() {
+        var customerId = UUID.randomUUID();
+        var customer = new Customer("user@example.com", "hash", CustomerStatus.PROFILE_COMPLETE, Instant.now());
+        ReflectionTestUtils.setField(customer, "id", customerId);
+        var existingProfile = createTestProfile(customerId);
+        var newAddress = new AddressDto("789 Pine Rd", "Unit 5", "Queens", "NY", "11375");
+        var updateRequest = new ProfileUpdateRequest(java.util.Optional.of(newAddress), java.util.Optional.of("+1-555-777-6666"));
+        when(customerRepository.findById(customerId)).thenReturn(java.util.Optional.of(customer));
+        when(profileRepository.findById(customerId)).thenReturn(java.util.Optional.of(existingProfile));
+
+        var response = service.updateProfile(customerId.toString(), updateRequest);
+
+        assertThat(response.address().street()).isEqualTo("789 Pine Rd");
+        assertThat(response.address().city()).isEqualTo("Queens");
+        assertThat(response.phone()).isEqualTo("+1-555-777-6666");
+    }
 }

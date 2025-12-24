@@ -10,4 +10,6 @@ public interface CustomerService {
     ProfileResponse completeProfile(String customerId, ProfileRequest request);
 
     ProfileResponse getProfile(String customerId);
+
+    ProfileResponse updateProfile(String customerId, ProfileUpdateRequest request);
 }

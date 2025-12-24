@@ -121,4 +121,14 @@ public class CustomerProfile {
         this.phone = phone;
         this.updatedAt = Instant.now();
     }
+
+    public void updateAddress(Address address) {
+        this.address = address;
+        this.updatedAt = Instant.now();
+    }
+
+    public void updatePhone(String phone) {
+        this.phone = phone;
+        this.updatedAt = Instant.now();
+    }
 }
