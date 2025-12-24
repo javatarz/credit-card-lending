@@ -20,7 +20,7 @@ Owns customer identity, registration, verification, and profile management. This
 | #21 | ✅ Done | Customer Registration |
 | #22 | ✅ Done | Email Verification |
 | #23 | ✅ Done | Profile Completion |
-| #24 | Pending | Profile Management |
+| #24 | ✅ Done | Profile Management |
 
 ## Package Structure
 
@@ -43,6 +43,7 @@ me.karun.bank.credit.customer/
 │   ├── RateLimitExceededException.java   ✅
 │   ├── ProfileRequest.java               ✅
 │   ├── ProfileResponse.java              ✅
+│   ├── ProfileUpdateRequest.java         ✅
 │   ├── AddressDto.java                   ✅
 │   ├── CustomerNotFoundException.java    ✅
 │   └── CustomerNotVerifiedException.java ✅
@@ -54,10 +55,12 @@ me.karun.bank.credit.customer/
 │   │   ├── CustomerStatus.java           ✅
 │   │   ├── CustomerProfile.java          ✅
 │   │   ├── Address.java                  ✅
+│   │   ├── ProfileAudit.java             ✅
 │   │   └── VerificationToken.java        ✅
 │   ├── repository/
 │   │   ├── CustomerRepository.java       ✅
 │   │   ├── CustomerProfileRepository.java ✅
+│   │   ├── ProfileAuditRepository.java   ✅
 │   │   └── VerificationTokenRepository.java ✅
 │   ├── service/
 │   │   ├── CustomerServiceImpl.java      ✅
@@ -113,6 +116,17 @@ CREATE TABLE customer.verification_tokens (
     used_at TIMESTAMP,
     created_at TIMESTAMP NOT NULL
 );
+
+-- profile_audit table
+CREATE TABLE customer.profile_audit (
+    id UUID PRIMARY KEY,
+    customer_id UUID NOT NULL REFERENCES customer.customers(id),
+    field_name VARCHAR(50) NOT NULL,
+    old_value TEXT,
+    new_value TEXT,
+    changed_at TIMESTAMP NOT NULL,
+    changed_by UUID NOT NULL
+);
 ```
 
 ## Public API
@@ -125,7 +139,8 @@ CREATE TABLE customer.verification_tokens (
 | POST | `/api/v1/customers/verify-email` | Verify email | ✅ |
 | POST | `/api/v1/customers/resend-verification` | Resend verification email | ✅ |
 | PUT | `/api/v1/customers/{customerId}/profile` | Complete/update profile | ✅ (temp auth) |
-| GET | `/api/v1/customers/me/profile` | Get own profile | Planned |
+| GET | `/api/v1/customers/{customerId}/profile` | Get profile | ✅ (temp auth) |
+| PATCH | `/api/v1/customers/{customerId}/profile` | Partial profile update | ✅ (temp auth) |
 
 ### CustomerService Interface
 
@@ -135,7 +150,8 @@ public interface CustomerService {
     VerifyEmailResponse verifyEmail(VerifyEmailRequest request);          // ✅ Implemented
     ResendVerificationResponse resendVerification(ResendVerificationRequest request); // ✅ Implemented
     ProfileResponse completeProfile(String customerId, ProfileRequest request); // ✅ Implemented
-    ProfileResponse getProfile(String customerId);                        // Planned
+    ProfileResponse getProfile(String customerId);                        // ✅ Implemented
+    ProfileResponse updateProfile(String customerId, ProfileUpdateRequest request); // ✅ Implemented
     boolean isProfileComplete(String customerId);                         // Planned
 }
 ```

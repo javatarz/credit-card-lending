@@ -81,7 +81,7 @@ Quick reference for what's built vs planned. Check here before starting work to 
 
 ### Feature Modules
 
-#### Customer Module (Stories #21, #22, #23)
+#### Customer Module (Stories #21, #22, #23, #24)
 - [x] Customer registration (`POST /api/v1/customers`)
 - [x] Email validation (format, uniqueness)
 - [x] Password validation (8+ chars, uppercase, lowercase, number, special char)
@@ -100,6 +100,12 @@ Quick reference for what's built vs planned. Check here before starting work to 
 - [x] Custom validators (@AdultAge, @ValidSsn)
 - [x] PROFILE_COMPLETE status for customers
 - [x] Profile update support (same endpoint)
+- [x] Profile viewing (`GET /api/v1/customers/{customerId}/profile`)
+- [x] Partial profile updates (`PATCH /api/v1/customers/{customerId}/profile`)
+- [x] ProfileUpdateRequest DTO with mutable fields only (address, phone)
+- [x] Immutable field protection (separate DTO prevents changes to SSN, DOB, name)
+- [x] Audit logging for profile changes (customer.profile_audit table)
+- [x] Audit records track field-level changes (old value → new value)
 
 ### CI/CD
 - [x] GitHub Action for documentation link validation (Story #43)
@@ -107,10 +113,11 @@ Quick reference for what's built vs planned. Check here before starting work to 
 
 ### Database
 - [x] Liquibase migrations for customer module
-- [x] `customer` schema with `customers`, `customer_profiles`, `verification_tokens` tables
+- [x] `customer` schema with `customers`, `customer_profiles`, `verification_tokens`, `profile_audit` tables
 - [x] `customer.customers` - Customer accounts with status (PENDING_VERIFICATION, VERIFIED, PROFILE_COMPLETE)
 - [x] `customer.customer_profiles` - Customer personal information with encrypted SSN
 - [x] `customer.verification_tokens` - Email verification tokens
+- [x] `customer.profile_audit` - Audit trail for profile changes (field-level tracking)
 
 ## MVP Scope
 
@@ -152,11 +159,11 @@ MVP covers the core credit card lifecycle. See epics labeled `mvp`.
 3. ~~#33 - S21.4: Wiki Enhancements~~ ✓ Complete
 4. ~~#27 - Developer Onboarding & CONTRIBUTING.md~~ ✓ Complete
 
-**Customer Module (P0 - in progress):**
+**Customer Module (P0 - complete):**
 1. ~~#21 - S01.1: Customer Registration~~ ✓ Complete
 2. ~~#22 - S01.2: Email Verification~~ ✓ Complete
 3. ~~#23 - S01.3: Profile Completion~~ ✓ Complete
-4. #24 - S01.4: Profile Management
+4. ~~#24 - S01.4: Profile Management~~ ✓ Complete
 
 ## Technical Debt
 
