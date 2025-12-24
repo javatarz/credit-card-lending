@@ -84,4 +84,16 @@ public class CustomerController {
             @Valid @RequestBody ProfileRequest request) {
         return customerService.completeProfile(customerId, request);
     }
+
+    @GetMapping("/{customerId}/profile")
+    @Operation(summary = "Get customer profile", description = "Retrieve customer profile information with masked SSN")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Profile retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = ProfileResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Customer or profile not found",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
+    })
+    public ProfileResponse getProfile(@PathVariable String customerId) {
+        return customerService.getProfile(customerId);
+    }
 }

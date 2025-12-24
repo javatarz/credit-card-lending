@@ -298,4 +298,43 @@ class CustomerServiceTest {
         assertThat(response.message()).isEqualTo("Verification email sent if account exists");
         verify(tokenRepository, never()).save(any());
     }
+
+    @Test
+    void shouldReturnProfile_whenCustomerExists() {
+        var customerId = UUID.randomUUID();
+        var customer = new Customer("user@example.com", "hash", CustomerStatus.PROFILE_COMPLETE, Instant.now());
+        ReflectionTestUtils.setField(customer, "id", customerId);
+        var profile = createTestProfile(customerId);
+        when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
+        when(profileRepository.findById(customerId)).thenReturn(Optional.of(profile));
+
+        var response = service.getProfile(customerId.toString());
+
+        assertThat(response.customerId()).isEqualTo(customerId);
+        assertThat(response.firstName()).isEqualTo("John");
+        assertThat(response.lastName()).isEqualTo("Doe");
+        assertThat(response.ssnLastFour()).isEqualTo("6789");
+        assertThat(response.address().street()).isEqualTo("123 Main St");
+        assertThat(response.phone()).isEqualTo("+1-555-123-4567");
+    }
+
+    private me.karun.bank.credit.customer.internal.domain.CustomerProfile createTestProfile(UUID customerId) {
+        var address = new me.karun.bank.credit.customer.internal.domain.Address(
+                "123 Main St",
+                "Apt 4B",
+                "New York",
+                "NY",
+                "10001"
+        );
+        return new me.karun.bank.credit.customer.internal.domain.CustomerProfile(
+                customerId,
+                "John",
+                "Doe",
+                java.time.LocalDate.of(1990, 5, 15),
+                "encrypted-ssn-data",
+                "6789",
+                address,
+                "+1-555-123-4567"
+        );
+    }
 }

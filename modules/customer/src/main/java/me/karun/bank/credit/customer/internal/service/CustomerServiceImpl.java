@@ -247,22 +247,37 @@ public class CustomerServiceImpl implements CustomerService {
         var updatedProfile = profileRepository.findById(UUID.fromString(customerId)).get();
         var updatedCustomer = customerRepository.findById(UUID.fromString(customerId)).get();
 
+        return toProfileResponse(updatedCustomer, updatedProfile);
+    }
+
+    @Override
+    public ProfileResponse getProfile(String customerId) {
+        var customer = customerRepository.findById(UUID.fromString(customerId))
+                .orElseThrow(() -> new CustomerNotFoundException("Customer not found"));
+
+        var profile = profileRepository.findById(UUID.fromString(customerId))
+                .orElseThrow(() -> new CustomerNotFoundException("Profile not found"));
+
+        return toProfileResponse(customer, profile);
+    }
+
+    private ProfileResponse toProfileResponse(Customer customer, CustomerProfile profile) {
         return new ProfileResponse(
-                updatedCustomer.getId(),
-                updatedProfile.getFirstName(),
-                updatedProfile.getLastName(),
-                updatedProfile.getDateOfBirth(),
-                updatedProfile.getSsnLastFour(),
+                customer.getId(),
+                profile.getFirstName(),
+                profile.getLastName(),
+                profile.getDateOfBirth(),
+                profile.getSsnLastFour(),
                 new AddressDto(
-                        updatedProfile.getAddress().getStreet(),
-                        updatedProfile.getAddress().getUnit(),
-                        updatedProfile.getAddress().getCity(),
-                        updatedProfile.getAddress().getState(),
-                        updatedProfile.getAddress().getZipCode()
+                        profile.getAddress().getStreet(),
+                        profile.getAddress().getUnit(),
+                        profile.getAddress().getCity(),
+                        profile.getAddress().getState(),
+                        profile.getAddress().getZipCode()
                 ),
-                updatedProfile.getPhone(),
-                updatedCustomer.getStatus().name(),
-                updatedProfile.getUpdatedAt() != null ? updatedProfile.getUpdatedAt() : updatedProfile.getCreatedAt()
+                profile.getPhone(),
+                customer.getStatus().name(),
+                profile.getUpdatedAt() != null ? profile.getUpdatedAt() : profile.getCreatedAt()
         );
     }
 }

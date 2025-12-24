@@ -8,4 +8,6 @@ public interface CustomerService {
     ResendVerificationResponse resendVerification(ResendVerificationRequest request);
 
     ProfileResponse completeProfile(String customerId, ProfileRequest request);
+
+    ProfileResponse getProfile(String customerId);
 }
