@@ -7,11 +7,72 @@
 
 > A demonstration of **intelligent Engineering (iE)** practices using Claude Code, with a credit card issuer system as the learning vehicle.
 
+## Why This Exists
+
+**Every developer wants to get better at using AI tools.** But most tutorials show toy examples - a TODO app, a simple script. Real software is messier: complex domains, multiple modules, evolving requirements, and the need for maintainable architecture.
+
+This repository is a **learning sandbox** where you can see (and practice) how to use AI assistants effectively on a non-trivial codebase:
+
+- **Watch real commits** built with AI assistance using TDD
+- **Read the context docs** that make AI collaboration effective
+- **Try the workflow** yourself with `/pickup` and `/start-dev`
+- **See the mistakes and iterations** - this isn't a polished demo, it's a real project
+
+The credit card lending domain is intentionally complex (PCI compliance, fraud detection, billing cycles) so you can learn patterns that transfer to your own messy, real-world projects.
+
+### New Here?
+
+**With Claude Code:** Run `/tour` for a guided walkthrough of the repo and workflow.
+
+**Without Claude Code:** Browse [`docs/tour/`](docs/tour/) to follow along at your own pace.
+
+<!-- TODO: Tour is coming soon - see #53 -->
+
 ## What is This?
 
-This repository exists to **demonstrate and practice intelligent Engineering (iE)** - a framework for leveraging AI throughout the entire Software Development Lifecycle. Rather than replacing the SDLC, iE applies AI assistance across all phases to reduce administrative overhead and empower developers to focus on strategy and creativity.
+A **modular monolith** credit card issuer platform covering the complete lifecycle:
 
-The credit card lending platform serves as a realistic, non-trivial domain to practice these skills. It covers the complete credit card lifecycle: customer onboarding, credit applications, decisioning, account management, transaction processing, billing, and payments.
+```mermaid
+flowchart TB
+    subgraph "API Layer"
+        GW[API Gateway]
+    end
+
+    subgraph "Feature Modules"
+        CUST[Customer]
+        APP[Application]
+        DEC[Decisioning]
+        ACCT[Account]
+        TXN[Transaction]
+        BILL[Billing]
+        PAY[Payment]
+    end
+
+    subgraph "Extractable Services"
+        FRAUD[Fraud Service]
+        PROC[Processor Sim]
+    end
+
+    subgraph "External Systems"
+        CB[Credit Bureau]
+        NETWORK[Card Network]
+    end
+
+    subgraph "Data Layer"
+        DB[(PostgreSQL)]
+    end
+
+    GW --> CUST & APP & ACCT & TXN & BILL & PAY
+    APP --> DEC
+    APP & TXN --> FRAUD
+    DEC --> CB
+    TXN --> PROC
+    PROC --> NETWORK
+    CUST & APP & ACCT & TXN & BILL & PAY --> DB
+    FRAUD --> DB
+```
+
+Built using **intelligent Engineering (iE)** - a framework for leveraging AI throughout the entire Software Development Lifecycle. Rather than replacing the SDLC, iE applies AI assistance across all phases to reduce administrative overhead and empower developers to focus on strategy and creativity.
 
 ## intelligent Engineering (iE)
 
@@ -36,6 +97,8 @@ iE uses AI (Claude Code) as a collaborative partner throughout development:
 | **TDD Workflow** | Red-Green-Refactor cycle with AI assistance |
 
 ### The Workflow
+
+<!-- TODO: Add workflow GIF here once created (see GitHub issue for GIF creation) -->
 
 ```
 /pickup          → Assign yourself a prioritized story
@@ -131,6 +194,14 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions and contribution g
 3. Follow the Red-Green-Refactor cycle
 4. Update context docs as needed
 5. Push to main
+
+## Results
+
+Using this workflow, the Customer module (registration, email verification, profile management with PCI-compliant SSN encryption) was built entirely with AI assistance using TDD. Every commit in this repo was created with Claude Code.
+
+*Have you used iE patterns in your own project? [Open a discussion](https://github.com/javatarz/credit-card-lending/discussions) to share your experience.*
+
+<!-- TODO: Add links to blog posts and case studies as they're published -->
 
 ## License
 
