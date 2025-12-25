@@ -1,5 +1,10 @@
 # Credit Card Lending Platform
 
+![Built with Claude Code](https://img.shields.io/badge/Built%20with-Claude%20Code-D97757)
+![License](https://img.shields.io/github/license/javatarz/credit-card-lending)
+![Java](https://img.shields.io/badge/Java-25-orange)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.x-brightgreen)
+
 > A demonstration of **intelligent Engineering (iE)** practices using Claude Code, with a credit card issuer system as the learning vehicle.
 
 ## What is This?
