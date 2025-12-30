@@ -24,8 +24,6 @@ The credit card lending domain is intentionally complex (PCI compliance, fraud d
 
 **With Claude Code:** Run `/tour` for a guided walkthrough of the repo and workflow.
 
-**Without Claude Code:** Browse [`docs/tour/`](docs/tour/) to follow along at your own pace.
-
 <!-- TODO: Tour is coming soon - see #53 -->
 
 ## What is This?
