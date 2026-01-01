@@ -5,7 +5,7 @@
 Track intelligent Engineering (iE) effectiveness. Read when setting up metrics, reviewing sprint performance, or measuring AI-assisted development impact.
 
 **Prerequisites:** [overview.md](overview.md)
-**Related:** [ai-workflow.md](ai-workflow.md)
+**Related:** [conventions.md](conventions.md), [testing.md](testing.md)
 
 ---
 
@@ -411,6 +411,6 @@ You're succeeding with iE when:
 
 ## Related Documentation
 
-- [ai-workflow.md](ai-workflow.md) - AI collaboration patterns
+- [conventions.md](conventions.md) - Code conventions and git workflow
 - [`CLAUDE.md`](../../CLAUDE.md) - Small batch principle
 - [testing.md](testing.md) - Test coverage strategy
