@@ -468,11 +468,12 @@ The `main` branch is protected with:
 
 | Rule | Effect |
 |------|--------|
-| **Required status checks** | `build` job must pass before push |
 | **Linear history** | Rebase only, no merge commits |
 | **No force push** | Prevents history rewriting |
 | **No deletion** | Prevents accidental branch removal |
 | **Auto-delete branches** | Merged branches cleaned up automatically |
+
+**Note:** Required status checks are NOT enforced for trunk-based development. Builds run on every push and report status (green check / red X), but don't block pushes. This allows direct commits to main while maintaining visibility of build health.
 
 ### Workflow Files
 
