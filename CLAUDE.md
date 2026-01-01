@@ -64,6 +64,7 @@ See [`docs/context/overview.md`](docs/context/overview.md) for the canonical tec
 |------|-------------|
 | **Never commit without user confirmation** | Explain what will be committed and why, then wait for approval |
 | **Never push without asking** | Always confirm before pushing to remote |
+| **Never force-push without explicit confirmation** | If a commit is already pushed and needs amendment, explain what's on remote, what force-push will do, and ask for explicit approval before proceeding |
 | **Smallest independent change** | Each commit should be the smallest change that doesn't break the system |
 | **Prefer many small commits** | Over few large ones - easier to review and revert |
 
