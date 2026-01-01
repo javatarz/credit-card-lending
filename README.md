@@ -1,5 +1,6 @@
 # Credit Card Lending Platform
 
+![Build](https://github.com/javatarz/credit-card-lending/actions/workflows/build-and-test.yml/badge.svg)
 ![Built with Claude Code](https://img.shields.io/badge/Built%20with-Claude%20Code-D97757)
 ![License](https://img.shields.io/github/license/javatarz/credit-card-lending)
 ![Java](https://img.shields.io/badge/Java-25-orange)
