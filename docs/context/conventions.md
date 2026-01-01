@@ -447,3 +447,48 @@ Exceptions where branches are acceptable:
 - **Experimental spikes** - Exploring options before committing to approach
 - **Large refactors** - When you need to share WIP with others
 - **External contributions** - Contributors without push access
+
+## CI/CD Pipeline
+
+### Automated Checks
+
+Every push to `main` triggers:
+
+| Check | Purpose | Blocks Push |
+|-------|---------|-------------|
+| **Build** | Compile all modules | Yes |
+| **Tests** | Run unit and integration tests | Yes |
+| **Documentation Links** | Verify all markdown links work | No |
+
+**Build status:** View at https://github.com/javatarz/credit-card-lending/actions
+
+### Branch Protection
+
+The `main` branch is protected with:
+
+| Rule | Effect |
+|------|--------|
+| **Required status checks** | `build` job must pass before push |
+| **Linear history** | Rebase only, no merge commits |
+| **No force push** | Prevents history rewriting |
+| **No deletion** | Prevents accidental branch removal |
+| **Auto-delete branches** | Merged branches cleaned up automatically |
+
+### Workflow Files
+
+| File | Purpose | Trigger |
+|------|---------|---------|
+| `.github/workflows/build-and-test.yml` | Build and test all modules | Push to main, PR to main |
+| `.github/workflows/check-doc-links.yml` | Validate markdown links | Push/PR changing .md files |
+
+### Test Reporting
+
+Test results are published as GitHub check runs and visible in:
+- PR checks (when using PRs)
+- Commit status (green check / red X)
+- Actions tab with detailed test report
+
+Failed tests show:
+- Which tests failed
+- Failure messages
+- Stack traces (click through to Actions for details)
