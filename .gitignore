@@ -31,3 +31,8 @@ logs/
 
 # Wiki (cloned from wiki repo, managed via wiki skill)
 docs/wiki/
+
+# AI session management
+NOTES.md
+SESSION_*.md
+scratch/

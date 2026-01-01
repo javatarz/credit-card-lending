@@ -96,6 +96,92 @@ git commit --fixup=<commit>
 GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash <commit>~1
 ```
 
+## Small Batch Principle
+
+Keep changes small for thorough review and maintainability.
+
+| Principle | Target | How to Achieve |
+|-----------|--------|----------------|
+| **Change size** | <200 lines per commit | Break stories into sub-tasks if needed |
+| **Commit frequency** | After each Red-Green-Refactor cycle | Small, focused commits |
+| **Review scope** | Single logical change | Easier to understand and verify |
+
+### Enforcement
+
+Before committing, check diff size:
+```bash
+git diff --stat
+```
+
+If a commit exceeds 200 lines:
+- Break into multiple commits (one per logical change)
+- Create sub-stories if acceptance criteria are too large
+- Use AskUserQuestion to propose splitting work
+
+### Why This Matters
+
+Small batches enable:
+- **Thorough review** - You can actually review every line
+- **Easy revert** - If something breaks, revert is surgical
+- **Clear history** - Each commit tells one story
+- **Faster feedback** - Problems surface quickly
+
+**AI amplifies this:** AI can generate lots of code quickly. Small batches keep you in control.
+
+## Context Management
+
+Managing context effectively is crucial when working with AI tools. The conversation context window is limited, and everything competes for space.
+
+### Context Management Techniques
+
+| Technique | When to Use | How |
+|-----------|-------------|-----|
+| **NOTES.md** | For persistent session context | Keep decisions, blockers, TODOs outside conversation |
+| **Compaction** | Long sessions, context window filling | Summarize completed work while preserving relevant info |
+| **Clear & restart** | Starting independent task | Fresh context when switching to unrelated work |
+| **Scratch space** | For experiments, temp files | Use `scratch/` directory (gitignored) instead of `/tmp` |
+| **Sub-agents** | For focused sub-tasks | Delegate to skills with fresh context |
+| **Just-in-time retrieval** | Default approach | Don't dump files upfront, reference as needed |
+
+### NOTES.md Pattern
+
+For longer sessions, use `NOTES.md` (gitignored) to track:
+- Current session info (date, story, last commit)
+- Design decisions made
+- Blockers encountered
+- TODOs for this story
+
+This keeps critical info available without consuming conversation context.
+
+### Scratch Space
+
+Use `scratch/` directory (gitignored) for:
+- Experimental code snippets
+- Intermediate calculations
+- Draft documentation
+- Analysis outputs
+
+**Why not /tmp?** Easier to see what's there, easier to clean up when sessions end.
+
+### When to Compact vs Clear
+
+| Scenario | Action |
+|----------|--------|
+| **Long story, context filling** | **Compact**: Summarize completed work, keep relevant decisions |
+| **Story complete, new story** | **Clear & restart**: Fresh context for new independent work |
+| **Context feels polluted** | **Clear & restart**: AI giving inconsistent responses |
+| **Design decision made** | **Note in NOTES.md**: Free up context, preserve decision |
+
+**Compaction preserves continuity.** Use when you need to remember what you've done but don't need all the details.
+
+**Clear & restart for independence.** Use when tasks are unrelated and old context is noise.
+
+### Context Failure Patterns
+
+For detailed troubleshooting patterns (context poisoning, distraction, confusion, stuck loops), see the Wiki's intelligent Engineering guide (accessible via `wiki` skill).
+
+**Quick recovery:** Checkpoint with `git commit` before risky changes, clarify misunderstandings early, or clear & restart conversation for independent tasks.
+
 ## Ubiquitous Language
 
 Use terminology from `docs/context/glossary.md` consistently across all documentation and code. This maintains a shared language between business and technical domains (per Domain-Driven Design principles).
