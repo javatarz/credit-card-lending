@@ -27,6 +27,12 @@ The credit card lending domain is intentionally complex (PCI compliance, fraud d
 
 <!-- TODO: Tour is coming soon - see #53 -->
 
+### See It In Action
+
+[![Watch: Codifying Engineering Culture](https://img.youtube.com/vi/oK0N7pQ5rIY/maxresdefault.jpg)](https://www.youtube.com/watch?v=oK0N7pQ5rIY&list=PLY67XcOB0u1QhUHMtg9C1ddx8CO2FAf8I)
+
+*[Watch the full playlist](https://www.youtube.com/playlist?list=PLY67XcOB0u1QhUHMtg9C1ddx8CO2FAf8I) for more videos on intelligent Engineering.*
+
 ## What is This?
 
 A **modular monolith** credit card issuer platform covering the complete lifecycle:
