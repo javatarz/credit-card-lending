@@ -84,6 +84,7 @@ Each module:
 
 ## Related Documentation
 
+- **Learning tour**: `docs/tour/` - Guided walkthrough of the iE approach
 - **ADRs**: `docs/adr/` - Technical decision records
 - **Domain details**: `docs/context/domain/` - Business rules per domain
 - **Module details**: `docs/context/modules/` - Technical boundaries per module
