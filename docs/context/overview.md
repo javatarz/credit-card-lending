@@ -88,3 +88,4 @@ Each module:
 - **Domain details**: `docs/context/domain/` - Business rules per domain
 - **Module details**: `docs/context/modules/` - Technical boundaries per module
 - **Current state**: `docs/context/current-state.md` - What's built vs planned
+- **Screencasts**: [GitHub Wiki](https://github.com/javatarz/credit-card-lending/wiki/intelligent-Engineering#screencasts) - Video walkthroughs of workflows
