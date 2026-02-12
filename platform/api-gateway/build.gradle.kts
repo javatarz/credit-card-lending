@@ -6,7 +6,6 @@ plugins {
 
 val springdocVersion: String by project
 val postgresqlVersion: String by project
-val liquibaseVersion: String by project
 
 dependencies {
     implementation(project(":shared:kernel"))
@@ -26,7 +25,7 @@ dependencies {
 
     // Database
     runtimeOnly("org.postgresql:postgresql:$postgresqlVersion")
-    implementation("org.liquibase:liquibase-core:$liquibaseVersion")
+    implementation("org.springframework.boot:spring-boot-starter-liquibase")
 
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
