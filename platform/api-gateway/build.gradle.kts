@@ -41,6 +41,15 @@ dockerCompose {
     useComposeFiles.add("../../docker-compose.yml")
     waitForTcpPorts.set(true)
     stopContainers.set(false) // Keep containers running after task completes
+    removeVolumes.set(false) // Preserve database data on composeDown
+}
+
+// composeDown (plugin-generated) only stops containers it started in the same session.
+// Since stopContainers=false, containers outlive the Gradle process, making composeDown a no-op.
+// Override to always use forced behavior so it reliably stops containers.
+tasks.named("composeDown") {
+    actions.clear()
+    dependsOn("composeDownForced")
 }
 
 tasks.named("bootRun") {

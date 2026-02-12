@@ -54,12 +54,7 @@ if ! docker info &> /dev/null; then
 fi
 echo -e "${GREEN}✓${NC} Docker daemon is running"
 
-# 5. Start PostgreSQL via docker-compose
-echo "Starting PostgreSQL..."
-docker-compose up -d
-echo -e "${GREEN}✓${NC} PostgreSQL is running"
-
-# 6. Build the project
+# 5. Build the project
 echo "Building the project (this may take a few minutes on first run)..."
 ./gradlew build
 echo -e "${GREEN}✓${NC} Build successful"
