@@ -31,7 +31,7 @@ The credit card lending domain is intentionally complex (PCI compliance, fraud d
 
 [![Watch: Codifying Engineering Culture](https://img.youtube.com/vi/oK0N7pQ5rIY/maxresdefault.jpg)](https://www.youtube.com/watch?v=oK0N7pQ5rIY&list=PLY67XcOB0u1QhUHMtg9C1ddx8CO2FAf8I)
 
-*[Watch the full playlist](https://www.youtube.com/playlist?list=PLY67XcOB0u1QhUHMtg9C1ddx8CO2FAf8I) for more videos on intelligent Engineering.*
+_[Watch the full playlist](https://www.youtube.com/playlist?list=PLY67XcOB0u1QhUHMtg9C1ddx8CO2FAf8I) for more videos on intelligent Engineering._
 
 ## What is This?
 
@@ -93,13 +93,13 @@ iE uses AI (Claude Code) as a collaborative partner throughout development:
 
 ### Techniques Used Here
 
-| Technique | Purpose |
-|-----------|---------|
-| **Context Documentation** (`docs/context/`) | Dense, factual docs optimized for LLM consumption |
-| **CLAUDE.md** | Project-specific instructions Claude Code reads automatically |
-| **Slash Commands** | `/pickup`, `/start-dev`, `/update-context` for workflow automation |
-| **Story Template** | Every story includes "Context Docs to Update" section |
-| **TDD Workflow** | Red-Green-Refactor cycle with AI assistance |
+| Technique                                   | Purpose                                                            |
+| ------------------------------------------- | ------------------------------------------------------------------ |
+| **Context Documentation** (`docs/context/`) | Dense, factual docs optimized for LLM consumption                  |
+| **CLAUDE.md**                               | Project-specific instructions Claude Code reads automatically      |
+| **Slash Commands**                          | `/pickup`, `/start-dev`, `/update-context` for workflow automation |
+| **Story Template**                          | Every story includes "Context Docs to Update" section              |
+| **TDD Workflow**                            | Red-Green-Refactor cycle with AI assistance                        |
 
 ### The Workflow
 
@@ -139,6 +139,7 @@ cd credit-card-lending
 ```
 
 The application will be available at:
+
 - API: http://localhost:8080
 - Swagger UI: http://localhost:8080/swagger-ui.html
 - Health: http://localhost:8080/actuator/health
@@ -161,14 +162,14 @@ claude
 
 ## Documentation
 
-| What | Where | Audience |
-|------|-------|----------|
-| **Design & Architecture** | [GitHub Wiki](https://github.com/javatarz/credit-card-lending/wiki) | Humans |
-| **Context Documentation** | [`docs/context/`](docs/context/) | Claude Code / LLMs |
-| **Technical Decisions** | [`docs/adr/`](docs/adr/) | Both |
-| **Epics & Stories** | [GitHub Issues](https://github.com/javatarz/credit-card-lending/issues) | Both |
-| **Claude Code Instructions** | [`CLAUDE.md`](CLAUDE.md) | Claude Code |
-| **API Documentation** | [Swagger UI](http://localhost:8080/swagger-ui.html) | Both |
+| What                         | Where                                                                   | Audience           |
+| ---------------------------- | ----------------------------------------------------------------------- | ------------------ |
+| **Design & Architecture**    | [GitHub Wiki](https://github.com/javatarz/credit-card-lending/wiki)     | Humans             |
+| **Context Documentation**    | [`docs/context/`](docs/context/)                                        | Claude Code / LLMs |
+| **Technical Decisions**      | [`docs/adr/`](docs/adr/)                                                | Both               |
+| **Epics & Stories**          | [GitHub Issues](https://github.com/javatarz/credit-card-lending/issues) | Both               |
+| **Claude Code Instructions** | [`CLAUDE.md`](CLAUDE.md)                                                | Claude Code        |
+| **API Documentation**        | [Swagger UI](http://localhost:8080/swagger-ui.html)                     | Both               |
 
 ### Key Context Documents
 
@@ -180,6 +181,8 @@ claude
 ## Tech Stack
 
 Java 25 LTS, Spring Boot 4.x, PostgreSQL 16.x, Gradle 9.x.
+
+> **Note:** You may see a warning during builds: _"Kotlin does not yet support 25 JDK target, falling back to JVM_24"_. This only affects the `buildSrc` Kotlin DSL compilation and has no impact on application code. It will resolve once Gradle bundles a Kotlin version with JDK 25 support.
 
 See [`docs/context/overview.md`](docs/context/overview.md) for full tech stack and [ADR-003](docs/adr/ADR-003-technology-stack.md) for rationale.
 
@@ -194,6 +197,7 @@ See [`docs/context/overview.md`](docs/context/overview.md) for full architecture
 See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions and contribution guidelines.
 
 **Quick contribution workflow:**
+
 1. Run `/pickup` to assign yourself a story
 2. Run `/start-dev` to begin TDD development
 3. Follow the Red-Green-Refactor cycle
@@ -204,7 +208,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions and contribution g
 
 Using this workflow, the Customer module (registration, email verification, profile management with PCI-compliant SSN encryption) was built entirely with AI assistance using TDD. Every commit in this repo was created with Claude Code.
 
-*Have you used iE patterns in your own project? [Open a discussion](https://github.com/javatarz/credit-card-lending/discussions) to share your experience.*
+_Have you used iE patterns in your own project? [Open a discussion](https://github.com/javatarz/credit-card-lending/discussions) to share your experience._
 
 <!-- TODO: Add links to blog posts and case studies as they're published -->
 
