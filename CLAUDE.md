@@ -217,6 +217,15 @@ The GitHub Wiki contains architecture and design documentation. Access it via th
 
 **Fallback:** If clone fails, skill provides online wiki URL.
 
+## Task Tracking
+
+This project uses [Beads](https://github.com/steveyegge/beads) (`bd`) for agent workflow tracking alongside GitHub Issues.
+
+- GitHub Issues remain the source of truth for epics and stories
+- Beads handles the agent workflow layer: task claiming, status tracking, review state
+- Cards in Beads are cross-referenced to GitHub Issues via `gh:#<number>` labels and `gh-<number>` external refs
+- See `AGENTS.md` for available commands and workflow
+
 ## Development Skills
 
 Model-invoked skills that activate automatically based on context.
