@@ -39,7 +39,7 @@ class VerificationTokenServiceTest {
     }
 
     @Test
-    void shouldSetTokenExpiryTo24Hours() {
+    void shouldSetTokenExpiryTo24Hours_whenCustomerRegisters() {
         var event = new CustomerRegisteredEvent(UUID.randomUUID(), "test@example.com", Instant.now());
         var beforeCreation = Instant.now();
 

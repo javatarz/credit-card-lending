@@ -65,7 +65,7 @@ class CustomerServiceTest {
     }
 
     @Test
-    void shouldNormalizeEmailToLowercase() {
+    void shouldNormalizeEmailToLowercase_whenRegistering() {
         var request = new RegistrationRequest("User@EXAMPLE.COM", "SecurePass123!");
         when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> simulateJpaSave(invocation.getArgument(0)));
 
@@ -75,7 +75,7 @@ class CustomerServiceTest {
     }
 
     @Test
-    void shouldPersistCustomerWithHashedPassword() {
+    void shouldPersistCustomerWithHashedPassword_whenRegistering() {
         var request = new RegistrationRequest("user@example.com", "SecurePass123!");
         var customerCaptor = ArgumentCaptor.forClass(Customer.class);
         when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> simulateJpaSave(invocation.getArgument(0)));
@@ -144,7 +144,7 @@ class CustomerServiceTest {
     }
 
     @Test
-    void shouldAcceptEmailWithSpecialCharacters() {
+    void shouldAcceptEmailWithSpecialCharacters_whenRegistering() {
         var request = new RegistrationRequest("user+tag@example.com", "SecurePass123!");
         when(customerRepository.findByEmail("user+tag@example.com")).thenReturn(Optional.empty());
         when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> simulateJpaSave(invocation.getArgument(0)));

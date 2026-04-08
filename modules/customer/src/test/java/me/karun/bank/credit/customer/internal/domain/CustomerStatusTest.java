@@ -7,7 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CustomerStatusTest {
 
     @Test
-    void shouldHaveProfileCompleteStatus() {
+    void shouldHaveProfileCompleteStatus_whenReferenced() {
         var status = CustomerStatus.PROFILE_COMPLETE;
 
         assertThat(status).isNotNull();
