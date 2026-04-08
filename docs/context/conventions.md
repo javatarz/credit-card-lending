@@ -56,7 +56,7 @@ Code should be self-documenting. **Do not add comments** to explain what code do
 
 ```java
 @Test
-void should_normalize_email_to_lowercase_when_registering() {
+void shouldNormalizeEmailToLowercase_whenRegistering() {
     var request = new RegistrationRequest("User@EXAMPLE.COM", "SecurePass123!");
 
     var response = service.register(request);
