@@ -219,15 +219,17 @@ The GitHub Wiki contains architecture and design documentation. Access it via th
 
 ## Agent Workflows
 
-This project supports dispatching worker agents to develop stories in isolated worktrees. Workers use the same TDD and Review skills as interactive development.
+This project uses **Agent Teams** to dispatch worker teammates to develop stories in isolated worktrees. Each teammate is a full Claude Code session with auto-compaction, coordinated via a shared task list and peer-to-peer messaging.
+
+**Requires:** `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` environment variable (v2.1.32+)
 
 ### Commands
 
 | Command | Purpose |
 |---------|---------|
-| `/orchestrate` | **Start here.** Auto-dispatches ready work, then guides you through reviews, stuck agents, and grooming |
-| `/dispatch` | Manually dispatch specific `dispatch-ready` stories to workers |
-| `/review-worktree` | Review completed worktrees — approve, reject, or inspect |
+| `/orchestrate` | **Start here.** Creates a team, auto-dispatches ready work, then guides you through reviews, stuck agents, and grooming |
+| `/dispatch` | Manually dispatch specific `dispatch-ready` stories to teammates |
+| `/review-worktree` | Review completed worktrees — approve, reject (with live feedback to teammate), or inspect |
 | `/start-dev` | Interactive development (human + Claude pair programming) |
 | `/pickup` | Pick a story for interactive work |
 
@@ -248,7 +250,9 @@ Stories flow through these GitHub labels:
 - Definition: `.claude/agents/worker.md`
 - Uses TDD skill (autonomous normal mode) and Review skill
 - Develops in isolated worktrees, never merges to main
-- Marks work for human review when done
+- Communicates with lead via `SendMessage` (done, stuck, receives rejection feedback)
+- Tracks progress via shared task list (`TaskUpdate`)
+- On rejection: iterates in place (no re-dispatch needed)
 
 ## Development Skills
 

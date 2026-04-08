@@ -105,9 +105,26 @@ git worktree remove <worktree-path>
 
 Confirm each step to the human as it completes.
 
-### Option: Reject
+### Option: Reject (teammate still running)
 
-When the human rejects, ask for feedback text explaining what needs to change. Then:
+If the teammate is still alive (check the team task list or recent messages), send feedback directly:
+
+```
+SendMessage(to: "worker-<number>", summary: "Rejection feedback for #<number>", message: "Review rejected: $FEEDBACK. Please fix and resubmit.")
+```
+
+The teammate receives the feedback, iterates on the work, and resubmits. No re-dispatch needed. The worktree and context are preserved.
+
+Also update GitHub for visibility:
+
+```bash
+gh issue comment <number> --body "Review rejected: $FEEDBACK (sent to teammate for iteration)"
+gh issue edit <number> --remove-label "review:pending" --add-label "in-progress"
+```
+
+### Option: Reject (teammate exited)
+
+If the teammate has already exited, fall back to label-based re-dispatch:
 
 ```bash
 # Add rejection feedback as a comment

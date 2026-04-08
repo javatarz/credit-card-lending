@@ -1,10 +1,10 @@
 ---
-description: Find ready stories from GitHub Issues and dispatch worker agents to develop them in isolated worktrees
+description: Find ready stories from GitHub Issues and dispatch worker teammates to develop them in isolated worktrees
 ---
 
 # Dispatch Workers
 
-You are dispatching work from the GitHub Issues backlog to worker agents. Follow these steps exactly.
+You are dispatching work from the GitHub Issues backlog to worker teammates. This command uses **Agent Teams** — each worker is a named teammate with its own worktree, coordinated via a shared task list.
 
 ## Step 1: Find ready work
 
@@ -29,11 +29,21 @@ Show the human the list of available issues. For each issue, display:
 
 Ask the human which issues to dispatch. Accept a comma-separated list of numbers, or let them pick interactively.
 
-## Step 3: Dispatch a worker for each selected issue
+## Step 3: Create the team and dispatch teammates
 
-For each selected issue:
+### 3a. Create the team
 
-### 3a. Get full issue details
+If no team exists yet for this session:
+
+```
+TeamCreate(team_name: "sprint-work", description: "Developing dispatch-ready stories")
+```
+
+If a team already exists (e.g., from a prior `/orchestrate` or `/dispatch`), reuse it by passing the existing `team_name` when spawning teammates.
+
+### 3b. For each selected issue:
+
+#### Get full issue details
 
 ```bash
 gh issue view <number> --json number,title,body,labels,comments
@@ -41,30 +51,36 @@ gh issue view <number> --json number,title,body,labels,comments
 
 Verify the issue has acceptance criteria. If not, warn the human and ask if they want to proceed anyway.
 
-### 3b. Assign the issue
+#### Assign the issue
 
 ```bash
 gh issue edit <number> --add-assignee @me
-```
-
-### 3c. Add in-progress label
-
-```bash
 gh issue edit <number> --add-label "in-progress"
 ```
 
-### 3d. Create a worktree branch name
+#### Create a branch name
 
-Derive a branch name from the issue number and title. Format: `work/<number>-<slugified-title>` (lowercase, hyphens, max 50 chars total).
+Format: `work/<number>-<slugified-title>` (lowercase, hyphens, max 50 chars total).
 
-Example: `work/49-auth-and-authorization`
-
-### 3e. Spawn the worker agent
-
-Use the Agent tool to spawn a worker agent with the following prompt. Substitute the actual values:
+#### Create a task in the shared list
 
 ```
+TaskCreate(subject: "#<number>: <title>", description: "Branch: <branch-name>\n\n<acceptance-criteria-summary>")
+```
+
+#### Spawn the teammate
+
+Use the Agent tool to spawn a worker teammate:
+
+```
+Agent(
+  team_name: "sprint-work",
+  name: "worker-<number>",
+  isolation: "worktree",
+  run_in_background: true,
+  prompt: """
 You have been assigned GitHub Issue #$NUMBER: $TITLE
+Your name in this team is "worker-$NUMBER". The lead session name is "lead".
 
 ## Issue Details
 
@@ -76,36 +92,36 @@ $COMMENTS_IF_ANY (especially look for rejection feedback from prior attempts)
 
 ## Your Task
 
+Task ID: $TASK_ID (claim it with TaskUpdate)
 Develop the work described in this issue. Your worktree branch is `$BRANCH_NAME`.
+Reference GitHub Issue #$NUMBER in your commit messages.
 
 When you are finished and all tests pass:
-1. Add a comment to the issue summarizing what you did:
-   ```
-   gh issue comment $NUMBER --body "Development complete. Branch: $BRANCH_NAME. Ready for human review."
-   ```
-2. Add the review:pending label:
-   ```
-   gh issue edit $NUMBER --add-label "review:pending" --remove-label "in-progress"
-   ```
+1. Comment on the issue: gh issue comment $NUMBER --body "Development complete. Branch: $BRANCH_NAME. Ready for human review."
+2. Update labels: gh issue edit $NUMBER --add-label "review:pending" --remove-label "in-progress" --remove-label "dispatch-ready"
+3. Message the lead: SendMessage(to: "lead", summary: "Done with #$NUMBER", message: "Development complete for #$NUMBER. Branch: $BRANCH_NAME. Ready for review.")
+4. Mark task complete: TaskUpdate(id: $TASK_ID, status: "completed")
 
 Do NOT merge to main. The human will review your worktree and merge.
+
+If you get stuck, message the lead:
+  SendMessage(to: "lead", summary: "Stuck on #$NUMBER", message: "<explain what's blocking>")
+
+If the lead sends you rejection feedback, iterate on the work (fix and resubmit).
+"""
+)
 ```
-
-Pass `isolation: "worktree"` and `run_in_background: true` so the agent gets its own working directory and doesn't block this session.
-
-### 3f. Track what was dispatched
-
-Keep a record of each dispatch: issue number, branch name, and the spawned agent.
 
 ## Step 4: Report
 
-After all workers are spawned, report a summary table:
+After all teammates are spawned, report a summary table:
 
-| Issue | Title | Branch | Status |
-|-------|-------|--------|--------|
-| #N | ... | work/N-... | Dispatched |
+| Issue | Title | Branch | Teammate | Status |
+|-------|-------|--------|----------|--------|
+| #N | ... | work/N-... | worker-N | Dispatched |
 
 Tell the human they can:
-- Continue working in this session while workers run
-- Check progress with `gh issue list --label review:pending`
+- Continue working in this session while teammates develop
+- Check progress via the shared task list (`Ctrl+T`)
 - Review completed work with `/review-worktree`
+- Send messages to teammates via `SendMessage`
