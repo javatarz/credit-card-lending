@@ -1,7 +1,0 @@
-{
-  "database": "dolt",
-  "backend": "dolt",
-  "dolt_mode": "server",
-  "dolt_database": "credit_card_lending",
-  "project_id": "43d6493c-2a51-49b3-8ba0-cee7ee0bef22"
-}
