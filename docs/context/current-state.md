@@ -188,7 +188,4 @@ See `docs/adr/` for full details:
 
 ## Metrics & Monitoring
 
-Not yet implemented. Planned:
-- Micrometer metrics
-- CloudWatch integration
-- OpenTelemetry tracing
+Not yet implemented. Will be planned as part of production readiness (post-MVP).
