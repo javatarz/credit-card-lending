@@ -4,6 +4,10 @@ You are helping the user develop a story using Test-Driven Development (TDD).
 
 **Before starting:** Read `docs/context/testing.md` for TDD principles and `docs/context/conventions.md` for code standards.
 
+## Phase 0: Sync Beads
+
+Run the `/sync-beads` skill to ensure Beads cards are in sync with GitHub Issues before starting work.
+
 ## Phase 1: Card Identification
 
 1. **Get current user and their assigned cards**:

@@ -4,6 +4,8 @@ You are helping the user pick up the next prioritized story to work on.
 
 ## Instructions
 
+0. **Sync Beads with GitHub Issues** by running the `/sync-beads` skill first.
+
 1. **Fetch open stories** using GitHub CLI:
    ```bash
    gh issue list --state open --label story --json number,title,labels,assignees,updatedAt --limit 100
