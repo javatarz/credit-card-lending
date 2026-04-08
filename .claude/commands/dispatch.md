@@ -1,76 +1,92 @@
 ---
-description: Find ready cards from the Beads backlog and dispatch worker agents to develop them in isolated worktrees
+description: Find ready stories from GitHub Issues and dispatch worker agents to develop them in isolated worktrees
 ---
 
 # Dispatch Workers
 
-You are dispatching work from the Beads backlog to worker agents. Follow these steps exactly.
+You are dispatching work from the GitHub Issues backlog to worker agents. Follow these steps exactly.
 
 ## Step 1: Find ready work
 
-Run `bd ready --plain` to get the list of unblocked cards available for work.
+Fetch open stories from GitHub:
 
-If no cards are ready, tell the human and stop. Suggest they groom cards or check `bd list` to see what's blocked.
+```bash
+gh issue list --state open --label story --json number,title,body,labels,assignees --limit 50
+```
 
-## Step 2: Present cards for selection
+Filter to unassigned issues (or issues assigned to the current user). Sort by priority label: P0 first, then P1, P2, etc.
 
-Show the human the list of ready cards. For each card, display:
-- ID
+If no issues are ready, tell the human and stop.
+
+## Step 2: Present issues for selection
+
+Show the human the list of available issues. For each issue, display:
+- Issue number
 - Title
-- Priority (if set)
-- Labels (especially module labels)
+- Priority label
+- Module labels
+- Whether it has acceptance criteria (check if body contains "Acceptance Criteria")
 
-Ask the human which cards to dispatch. Accept a comma-separated list of IDs, "all", or let them pick interactively.
+Ask the human which issues to dispatch. Accept a comma-separated list of numbers, or let them pick interactively.
 
-## Step 3: Dispatch a worker for each selected card
+## Step 3: Dispatch a worker for each selected issue
 
-For each selected card:
+For each selected issue:
 
-### 3a. Get card details
+### 3a. Get full issue details
 
-Run `bd show <id>` to get the full card description, acceptance criteria, and any notes (including rejection feedback from previous attempts).
+```bash
+gh issue view <number> --json number,title,body,labels,comments
+```
 
-### 3b. Claim the card
+Verify the issue has acceptance criteria. If not, warn the human and ask if they want to proceed anyway.
 
-Run `bd update <id> --claim` to atomically set the card to in_progress and assign it.
+### 3b. Assign the issue
 
-If claiming fails (card already claimed), skip it and tell the human.
+```bash
+gh issue edit <number> --add-assignee @me
+```
 
-### 3c. Create a worktree branch name
+### 3c. Add in-progress label
 
-Derive a branch name from the card ID and title. Format: `work/<card-id>-<slugified-title>` (lowercase, hyphens, max 50 chars total).
+```bash
+gh issue edit <number> --add-label "in-progress"
+```
 
-Example: `work/bd-a1b2-add-payment-validation`
+### 3d. Create a worktree branch name
 
-### 3d. Look up the GitHub Issue number
+Derive a branch name from the issue number and title. Format: `work/<number>-<slugified-title>` (lowercase, hyphens, max 50 chars total).
 
-If the card has a `gh:#<number>` label, extract the issue number. The worker needs this for commit messages.
+Example: `work/49-auth-and-authorization`
 
 ### 3e. Spawn the worker agent
 
-Use the Agent tool to spawn a `worker` agent with the following prompt. Substitute the actual values for the placeholders:
+Use the Agent tool to spawn a worker agent with the following prompt. Substitute the actual values:
 
 ```
-You have been assigned card **$CARD_ID**: $CARD_TITLE
+You have been assigned GitHub Issue #$NUMBER: $TITLE
 
-## Card Details
+## Issue Details
 
-$FULL_BD_SHOW_OUTPUT
+$FULL_ISSUE_BODY
 
-## GitHub Issue
+## Previous Review Feedback
 
-This card corresponds to GitHub Issue #$GH_ISSUE_NUMBER. Reference this in your commit messages.
+$COMMENTS_IF_ANY (especially look for rejection feedback from prior attempts)
 
 ## Your Task
 
-Develop the work described in this card. Your worktree branch is `$BRANCH_NAME`.
+Develop the work described in this issue. Your worktree branch is `$BRANCH_NAME`.
 
-When you are finished and all tests pass, run:
-
-```
-bd update $CARD_ID --status blocked --add-label review:pending
-bd note $CARD_ID "Development complete. Branch: $BRANCH_NAME. Ready for human review."
-```
+When you are finished and all tests pass:
+1. Add a comment to the issue summarizing what you did:
+   ```
+   gh issue comment $NUMBER --body "Development complete. Branch: $BRANCH_NAME. Ready for human review."
+   ```
+2. Add the review:pending label:
+   ```
+   gh issue edit $NUMBER --add-label "review:pending" --remove-label "in-progress"
+   ```
 
 Do NOT merge to main. The human will review your worktree and merge.
 ```
@@ -79,17 +95,17 @@ Pass `isolation: "worktree"` and `run_in_background: true` so the agent gets its
 
 ### 3f. Track what was dispatched
 
-Keep a record of each dispatch: card ID, branch name, and the spawned agent.
+Keep a record of each dispatch: issue number, branch name, and the spawned agent.
 
 ## Step 4: Report
 
 After all workers are spawned, report a summary table:
 
-| Card | Title | Branch | Status |
-|------|-------|--------|--------|
-| bd-xxxx | ... | work/bd-xxxx-... | Dispatched |
+| Issue | Title | Branch | Status |
+|-------|-------|--------|--------|
+| #N | ... | work/N-... | Dispatched |
 
 Tell the human they can:
 - Continue working in this session while workers run
-- Check progress with `bd list --label review:pending`
+- Check progress with `gh issue list --label review:pending`
 - Review completed work with `/review-worktree`

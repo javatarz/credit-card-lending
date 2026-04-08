@@ -1,16 +1,14 @@
 ---
 name: pickup
-description: Pick up the next prioritized story. Syncs Beads, fetches open stories from GitHub, presents prioritized options, and assigns the selected card. Can be invoked standalone or from other workflows like start-dev.
+description: Pick up the next prioritized story from GitHub Issues, present prioritized options, and assign the selected issue. Can be invoked standalone or from other workflows like start-dev.
 allowed-tools: Bash, Read, AskUserQuestion
 ---
 
-# Pick Up Next Card
+# Pick Up Next Story
 
 Help the user pick up the next prioritized story to work on.
 
 ## Instructions
-
-0. **Sync Beads with GitHub Issues** by running the `/sync-beads` skill first.
 
 1. **Fetch open stories** using GitHub CLI:
    ```bash

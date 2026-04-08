@@ -217,14 +217,14 @@ The GitHub Wiki contains architecture and design documentation. Access it via th
 
 **Fallback:** If clone fails, skill provides online wiki URL.
 
-## Task Tracking
+## Agent Workflows
 
-This project uses [Beads](https://github.com/steveyegge/beads) (`bd`) for agent workflow tracking alongside GitHub Issues.
+This project supports dispatching worker agents to develop stories in isolated worktrees.
 
-- GitHub Issues remain the source of truth for epics and stories
-- Beads handles the agent workflow layer: task claiming, status tracking, review state
-- Cards in Beads are cross-referenced to GitHub Issues via `gh:#<number>` labels and `gh-<number>` external refs
-- See `AGENTS.md` for available commands and workflow
+- `/dispatch` — find ready stories, assign, and spawn background workers
+- `/review-worktree` — review completed worktrees, approve or reject
+- GitHub Issues is the sole source of truth for tracking (labels: `in-progress`, `review:pending`, `needs-help`)
+- Worker agent definition: `.claude/agents/worker.md`
 
 ## Development Skills
 
