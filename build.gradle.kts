@@ -2,6 +2,7 @@ plugins {
     java
     id("org.springframework.boot") version "4.0.0-RC1" apply false
     id("io.spring.dependency-management") version "1.1.7" apply false
+    id("com.diffplug.spotless") version "7.0.4"
 }
 
 allprojects {
@@ -16,10 +17,20 @@ allprojects {
 
 subprojects {
     apply(plugin = "java")
+    apply(plugin = "com.diffplug.spotless")
 
     java {
         toolchain {
             languageVersion.set(JavaLanguageVersion.of(25))
+        }
+    }
+
+    spotless {
+        java {
+            googleJavaFormat("1.35.0")
+            removeUnusedImports()
+            trimTrailingWhitespace()
+            endWithNewline()
         }
     }
 
