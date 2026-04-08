@@ -2,6 +2,7 @@
 # Scans content for potential secrets before it hits disk.
 # Used as a PreToolUse hook on Edit/Write operations.
 # Receives JSON via stdin from Claude Code.
+# Uses gitleaks (https://github.com/gitleaks/gitleaks) for detection.
 # Exit 0 = OK, Exit 2 = block with feedback.
 
 INPUT=$(cat)
@@ -23,23 +24,15 @@ fi
 
 FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
 
-# Patterns that suggest secrets
-PATTERNS=(
-  'AKIA[0-9A-Z]{16}'                    # AWS Access Key
-  'password\s*=\s*["\x27][^"\x27]+'     # Hardcoded passwords
-  'secret\s*=\s*["\x27][^"\x27]+'       # Hardcoded secrets
-  'token\s*=\s*["\x27][^"\x27]+'        # Hardcoded tokens
-  'api[_-]?key\s*=\s*["\x27][^"\x27]+'  # API keys
-  'BEGIN\s+(RSA|DSA|EC|OPENSSH)\s+PRIVATE\s+KEY'  # Private keys
-)
+# Scan content with gitleaks via stdin
+RESULT=$(echo "$CONTENT" | gitleaks stdin --no-banner --exit-code 2 --report-format json --report-path - 2>/dev/null)
+EXIT_CODE=$?
 
-for pattern in "${PATTERNS[@]}"; do
-  if echo "$CONTENT" | grep -qEi "$pattern" 2>/dev/null; then
-    echo "BLOCKED: Potential secret detected in ${FILE_PATH:-unknown file}" >&2
-    echo "Pattern matched: $pattern" >&2
-    echo "Remove the secret and use environment variables or a secrets manager instead." >&2
-    exit 2
-  fi
-done
+if [ "$EXIT_CODE" -eq 2 ]; then
+  echo "BLOCKED: Secret detected in ${FILE_PATH:-unknown file}" >&2
+  echo "$RESULT" | jq -r '.[] | "  Rule: \(.RuleID) — \(.Description)"' 2>/dev/null >&2
+  echo "Remove the secret and use environment variables or a secrets manager instead." >&2
+  exit 2
+fi
 
 exit 0
