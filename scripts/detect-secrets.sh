@@ -1,18 +1,27 @@
 #!/usr/bin/env bash
-# Scans staged/modified files for potential secrets before they hit disk.
+# Scans content for potential secrets before it hits disk.
 # Used as a PreToolUse hook on Edit/Write operations.
+# Receives JSON via stdin from Claude Code.
 # Exit 0 = OK, Exit 2 = block with feedback.
 
-FILE_PATH="${TOOL_INPUT_FILE_PATH:-$1}"
+INPUT=$(cat)
 
-if [ -z "$FILE_PATH" ]; then
+TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name')
+
+# Extract the content to scan based on tool type
+if [ "$TOOL_NAME" = "Write" ]; then
+  CONTENT=$(echo "$INPUT" | jq -r '.tool_input.content // empty')
+elif [ "$TOOL_NAME" = "Edit" ]; then
+  CONTENT=$(echo "$INPUT" | jq -r '.tool_input.new_string // empty')
+else
   exit 0
 fi
 
-# Skip non-text files
-if file --mime-type "$FILE_PATH" 2>/dev/null | grep -qv "text/"; then
+if [ -z "$CONTENT" ]; then
   exit 0
 fi
+
+FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
 
 # Patterns that suggest secrets
 PATTERNS=(
@@ -25,8 +34,8 @@ PATTERNS=(
 )
 
 for pattern in "${PATTERNS[@]}"; do
-  if grep -qEi "$pattern" "$FILE_PATH" 2>/dev/null; then
-    echo "BLOCKED: Potential secret detected in $FILE_PATH" >&2
+  if echo "$CONTENT" | grep -qEi "$pattern" 2>/dev/null; then
+    echo "BLOCKED: Potential secret detected in ${FILE_PATH:-unknown file}" >&2
     echo "Pattern matched: $pattern" >&2
     echo "Remove the secret and use environment variables or a secrets manager instead." >&2
     exit 2

@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # Auto-formats Java files after Write/Edit operations.
 # Uses Spotless (the project's formatter).
-# This is a PostToolUse hook, so it runs after every file change.
+# Receives JSON via stdin from Claude Code.
 
-FILE_PATH="${TOOL_INPUT_FILE_PATH:-$1}"
+INPUT=$(cat)
+
+FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
 
 if [ -z "$FILE_PATH" ]; then
   exit 0
