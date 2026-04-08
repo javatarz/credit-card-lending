@@ -113,8 +113,8 @@ When the human rejects, ask for feedback text explaining what needs to change. T
 # Add rejection feedback as a comment
 gh issue comment <number> --body "Review rejected: $FEEDBACK"
 
-# Update labels
-gh issue edit <number> --remove-label "review:pending" --add-label "in-progress"
+# Update labels — re-add dispatch-ready so it gets picked up again
+gh issue edit <number> --remove-label "review:pending" --remove-label "in-progress" --add-label "dispatch-ready"
 ```
 
 Tell the human the issue is back in the backlog. The feedback comment will be visible to the next worker when the issue is re-dispatched.

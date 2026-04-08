@@ -8,13 +8,13 @@ You are dispatching work from the GitHub Issues backlog to worker agents. Follow
 
 ## Step 1: Find ready work
 
-Fetch open stories from GitHub:
+Fetch open stories with the `dispatch-ready` label:
 
 ```bash
-gh issue list --state open --label story --json number,title,body,labels,assignees --limit 50
+gh issue list --state open --label story --label dispatch-ready --json number,title,body,labels,assignees --limit 50
 ```
 
-Filter to unassigned issues (or issues assigned to the current user). Sort by priority label: P0 first, then P1, P2, etc.
+Filter to unassigned issues. Sort by priority label: P0 first, then P1, P2, etc.
 
 If no issues are ready, tell the human and stop.
 

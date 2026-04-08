@@ -219,12 +219,36 @@ The GitHub Wiki contains architecture and design documentation. Access it via th
 
 ## Agent Workflows
 
-This project supports dispatching worker agents to develop stories in isolated worktrees.
+This project supports dispatching worker agents to develop stories in isolated worktrees. Workers use the same TDD and Review skills as interactive development.
 
-- `/dispatch` — find ready stories, assign, and spawn background workers
-- `/review-worktree` — review completed worktrees, approve or reject
-- GitHub Issues is the sole source of truth for tracking (labels: `in-progress`, `review:pending`, `needs-help`)
-- Worker agent definition: `.claude/agents/worker.md`
+### Commands
+
+| Command | Purpose |
+|---------|---------|
+| `/orchestrate` | **Start here.** Auto-dispatches ready work, then guides you through reviews, stuck agents, and grooming |
+| `/dispatch` | Manually dispatch specific `dispatch-ready` stories to workers |
+| `/review-worktree` | Review completed worktrees — approve, reject, or inspect |
+| `/start-dev` | Interactive development (human + Claude pair programming) |
+| `/pickup` | Pick a story for interactive work |
+
+### Label Lifecycle
+
+Stories flow through these GitHub labels:
+
+| Label | Meaning |
+|-------|---------|
+| `story` | Exists but needs grooming or is for interactive work |
+| `dispatch-ready` | Groomed and ready for autonomous worker agents |
+| `in-progress` | A worker (or human) is actively developing |
+| `review:pending` | Worker finished, awaiting human review |
+| `needs-help` | Worker is stuck, needs human input |
+
+### Worker Agent
+
+- Definition: `.claude/agents/worker.md`
+- Uses TDD skill (autonomous normal mode) and Review skill
+- Develops in isolated worktrees, never merges to main
+- Marks work for human review when done
 
 ## Development Skills
 
