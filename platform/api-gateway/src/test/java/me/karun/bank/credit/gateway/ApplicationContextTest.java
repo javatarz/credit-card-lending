@@ -11,14 +11,13 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Testcontainers
 class ApplicationContextTest {
 
-    @Container
-    @ServiceConnection
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16")
-        .withDatabaseName("credit_card_platform");
+  @Container @ServiceConnection
+  static PostgreSQLContainer<?> postgres =
+      new PostgreSQLContainer<>("postgres:16").withDatabaseName("credit_card_platform");
 
-    @Test
-    void contextLoads() {
-        // Verifies that the Spring application context starts successfully,
-        // including Liquibase migrations and Hibernate schema validation
-    }
+  @Test
+  void contextLoads() {
+    // Verifies that the Spring application context starts successfully,
+    // including Liquibase migrations and Hibernate schema validation
+  }
 }

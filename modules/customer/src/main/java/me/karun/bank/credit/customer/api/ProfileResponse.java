@@ -13,5 +13,4 @@ public record ProfileResponse(
     AddressDto address,
     String phone,
     String profileStatus,
-    Instant updatedAt
-) {}
+    Instant updatedAt) {}

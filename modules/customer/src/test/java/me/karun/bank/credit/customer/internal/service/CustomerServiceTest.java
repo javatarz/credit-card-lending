@@ -1,5 +1,13 @@
 package me.karun.bank.credit.customer.internal.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+import java.time.Instant;
+import java.util.Optional;
+import java.util.UUID;
 import me.karun.bank.credit.customer.api.*;
 import me.karun.bank.credit.customer.internal.domain.Customer;
 import me.karun.bank.credit.customer.internal.domain.CustomerStatus;
@@ -19,376 +27,396 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.time.Instant;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 class CustomerServiceTest {
 
-    private CustomerRepository customerRepository;
-    private VerificationTokenRepository tokenRepository;
-    private CustomerProfileRepository profileRepository;
-    private me.karun.bank.credit.customer.internal.repository.ProfileAuditRepository auditRepository;
-    private PasswordEncoder passwordEncoder;
-    private ApplicationEventPublisher eventPublisher;
-    private EncryptionService encryptionService;
-    private CustomerServiceImpl service;
-
-    @BeforeEach
-    void setUp() {
-        customerRepository = mock(CustomerRepository.class);
-        tokenRepository = mock(VerificationTokenRepository.class);
-        profileRepository = mock(CustomerProfileRepository.class);
-        auditRepository = mock(me.karun.bank.credit.customer.internal.repository.ProfileAuditRepository.class);
-        passwordEncoder = new BCryptPasswordEncoder(12);
-        eventPublisher = mock(ApplicationEventPublisher.class);
-        encryptionService = mock(EncryptionService.class);
-        service = new CustomerServiceImpl(customerRepository, tokenRepository, profileRepository, auditRepository, passwordEncoder, eventPublisher, encryptionService);
-    }
-
-    @Test
-    void shouldCreateCustomerInPendingVerificationStatus_whenValidRegistration() {
-        var request = new RegistrationRequest("user@example.com", "SecurePass123!");
-        when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> simulateJpaSave(invocation.getArgument(0)));
-
-        var response = service.register(request);
-
-        assertThat(response.customerId()).isNotNull();
-        assertThat(response.email()).isEqualTo("user@example.com");
-        assertThat(response.status()).isEqualTo(CustomerStatus.PENDING_VERIFICATION.name());
-        assertThat(response.createdAt()).isNotNull();
-    }
-
-    @Test
-    void shouldNormalizeEmailToLowercase_whenRegistering() {
-        var request = new RegistrationRequest("User@EXAMPLE.COM", "SecurePass123!");
-        when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> simulateJpaSave(invocation.getArgument(0)));
-
-        var response = service.register(request);
-
-        assertThat(response.email()).isEqualTo("user@example.com");
-    }
-
-    @Test
-    void shouldPersistCustomerWithHashedPassword_whenRegistering() {
-        var request = new RegistrationRequest("user@example.com", "SecurePass123!");
-        var customerCaptor = ArgumentCaptor.forClass(Customer.class);
-        when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> simulateJpaSave(invocation.getArgument(0)));
-
-        service.register(request);
-
-        verify(customerRepository).save(customerCaptor.capture());
-        var savedCustomer = customerCaptor.getValue();
-        assertThat(savedCustomer.getEmail()).isEqualTo("user@example.com");
-        assertThat(savedCustomer.getPasswordHash()).isNotEqualTo("SecurePass123!");
-        assertThat(passwordEncoder.matches("SecurePass123!", savedCustomer.getPasswordHash())).isTrue();
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {"invalid", "missing-at.com", "@nodomain.com", "spaces in@email.com"})
-    void shouldRejectRegistration_whenEmailFormatIsInvalid(String invalidEmail) {
-        var request = new RegistrationRequest(invalidEmail, "SecurePass123!");
-
-        assertThatThrownBy(() -> service.register(request))
-                .isInstanceOf(InvalidEmailException.class);
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {
-            "Short1!",
-            "nouppercase123!",
-            "NOLOWERCASE123!",
-            "NoNumbers!!",
-            "NoSpecial123"
-    })
-    void shouldRejectRegistration_whenPasswordIsWeak(String weakPassword) {
-        var request = new RegistrationRequest("user@example.com", weakPassword);
-
-        assertThatThrownBy(() -> service.register(request))
-                .isInstanceOf(WeakPasswordException.class);
-    }
-
-    @ParameterizedTest
-    @NullAndEmptySource
-    @ValueSource(strings = {"   "})
-    void shouldRejectRegistration_whenEmailIsEmpty(String emptyEmail) {
-        var request = new RegistrationRequest(emptyEmail, "SecurePass123!");
-
-        assertThatThrownBy(() -> service.register(request))
-                .isInstanceOf(InvalidEmailException.class);
-    }
-
-    @ParameterizedTest
-    @NullAndEmptySource
-    @ValueSource(strings = {"   "})
-    void shouldRejectRegistration_whenPasswordIsEmpty(String emptyPassword) {
-        var request = new RegistrationRequest("user@example.com", emptyPassword);
-
-        assertThatThrownBy(() -> service.register(request))
-                .isInstanceOf(WeakPasswordException.class);
-    }
-
-    @Test
-    void shouldRejectRegistration_whenEmailAlreadyExists() {
-        var request = new RegistrationRequest("existing@example.com", "SecurePass123!");
-        var existingCustomer = new Customer("existing@example.com", "hash", CustomerStatus.PENDING_VERIFICATION, Instant.now());
-        when(customerRepository.findByEmail("existing@example.com")).thenReturn(Optional.of(existingCustomer));
-
-        assertThatThrownBy(() -> service.register(request))
-                .isInstanceOf(EmailAlreadyExistsException.class);
-    }
-
-    @Test
-    void shouldAcceptEmailWithSpecialCharacters_whenRegistering() {
-        var request = new RegistrationRequest("user+tag@example.com", "SecurePass123!");
-        when(customerRepository.findByEmail("user+tag@example.com")).thenReturn(Optional.empty());
-        when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> simulateJpaSave(invocation.getArgument(0)));
-
-        var response = service.register(request);
-
-        assertThat(response.email()).isEqualTo("user+tag@example.com");
-    }
-
-    @Test
-    void shouldPublishCustomerRegisteredEvent_whenRegistrationSucceeds() {
-        var request = new RegistrationRequest("user@example.com", "SecurePass123!");
-        when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> simulateJpaSave(invocation.getArgument(0)));
-        var eventCaptor = ArgumentCaptor.forClass(CustomerRegisteredEvent.class);
-
-        var response = service.register(request);
-
-        verify(eventPublisher).publishEvent(eventCaptor.capture());
-        var event = eventCaptor.getValue();
-        assertThat(event.customerId()).isEqualTo(response.customerId());
-        assertThat(event.email()).isEqualTo("user@example.com");
-        assertThat(event.registeredAt()).isNotNull();
-    }
-
-    private Customer simulateJpaSave(Customer customer) {
-        ReflectionTestUtils.setField(customer, "id", UUID.randomUUID());
-        return customer;
-    }
-
-    @Test
-    void shouldVerifyCustomer_whenValidToken() {
-        var customerId = UUID.randomUUID();
-        var rawToken = "valid-token";
-        var tokenHash = hashToken(rawToken);
-        var customer = new Customer("user@example.com", "hash", CustomerStatus.PENDING_VERIFICATION, Instant.now());
-        ReflectionTestUtils.setField(customer, "id", customerId);
-        var token = new VerificationToken(customerId, tokenHash, Instant.now().plusSeconds(3600));
-        when(tokenRepository.findByTokenHash(tokenHash)).thenReturn(Optional.of(token));
-        when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
-
-        var response = service.verifyEmail(new VerifyEmailRequest(rawToken));
-
-        assertThat(response.customerId()).isEqualTo(customerId);
-        assertThat(response.status()).isEqualTo("VERIFIED");
-        assertThat(response.verifiedAt()).isNotNull();
-    }
-
-    @Test
-    void shouldThrowTokenNotFoundException_whenTokenDoesNotExist() {
-        var rawToken = "non-existent-token";
-        when(tokenRepository.findByTokenHash(hashToken(rawToken))).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> service.verifyEmail(new VerifyEmailRequest(rawToken)))
-                .isInstanceOf(TokenNotFoundException.class);
-    }
-
-    @Test
-    void shouldThrowTokenExpiredException_whenTokenIsExpired() {
-        var customerId = UUID.randomUUID();
-        var rawToken = "expired-token";
-        var tokenHash = hashToken(rawToken);
-        var expiredToken = new VerificationToken(customerId, tokenHash, Instant.now().minusSeconds(3600));
-        when(tokenRepository.findByTokenHash(tokenHash)).thenReturn(Optional.of(expiredToken));
-
-        assertThatThrownBy(() -> service.verifyEmail(new VerifyEmailRequest(rawToken)))
-                .isInstanceOf(TokenExpiredException.class);
-    }
-
-    @Test
-    void shouldReturnSuccess_whenCustomerAlreadyVerified() {
-        var customerId = UUID.randomUUID();
-        var rawToken = "valid-token";
-        var tokenHash = hashToken(rawToken);
-        var customer = new Customer("user@example.com", "hash", CustomerStatus.PENDING_VERIFICATION, Instant.now());
-        ReflectionTestUtils.setField(customer, "id", customerId);
-        customer.verify();
-        var token = new VerificationToken(customerId, tokenHash, Instant.now().plusSeconds(3600));
-        when(tokenRepository.findByTokenHash(tokenHash)).thenReturn(Optional.of(token));
-        when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
-
-        var response = service.verifyEmail(new VerifyEmailRequest(rawToken));
-
-        assertThat(response.status()).isEqualTo("VERIFIED");
-    }
-
-    @Test
-    void shouldDeleteToken_afterSuccessfulVerification() {
-        var customerId = UUID.randomUUID();
-        var rawToken = "valid-token";
-        var tokenHash = hashToken(rawToken);
-        var customer = new Customer("user@example.com", "hash", CustomerStatus.PENDING_VERIFICATION, Instant.now());
-        ReflectionTestUtils.setField(customer, "id", customerId);
-        var token = new VerificationToken(customerId, tokenHash, Instant.now().plusSeconds(3600));
-        ReflectionTestUtils.setField(token, "id", UUID.randomUUID());
-        when(tokenRepository.findByTokenHash(tokenHash)).thenReturn(Optional.of(token));
-        when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
-
-        service.verifyEmail(new VerifyEmailRequest(rawToken));
-
-        verify(tokenRepository).delete(token);
-    }
-
-    private String hashToken(String rawToken) {
-        return Integer.toHexString(rawToken.hashCode());
-    }
-
-    @Test
-    void shouldResendVerification_whenCustomerExistsAndNotVerified() {
-        var customerId = UUID.randomUUID();
-        var customer = new Customer("user@example.com", "hash", CustomerStatus.PENDING_VERIFICATION, Instant.now());
-        ReflectionTestUtils.setField(customer, "id", customerId);
-        when(customerRepository.findByEmail("user@example.com")).thenReturn(Optional.of(customer));
-        when(tokenRepository.countByCustomerIdAndCreatedAtAfter(eq(customerId), any(Instant.class))).thenReturn(0L);
-
-        var response = service.resendVerification(new ResendVerificationRequest("user@example.com"));
-
-        assertThat(response.message()).isEqualTo("Verification email sent if account exists");
-        verify(tokenRepository).save(any(VerificationToken.class));
-    }
-
-    @Test
-    void shouldReturnSuccess_whenEmailDoesNotExist() {
-        when(customerRepository.findByEmail("unknown@example.com")).thenReturn(Optional.empty());
-
-        var response = service.resendVerification(new ResendVerificationRequest("unknown@example.com"));
-
-        assertThat(response.message()).isEqualTo("Verification email sent if account exists");
-        verify(tokenRepository, never()).save(any());
-    }
-
-    @Test
-    void shouldThrowRateLimitExceeded_whenTooManyResendRequests() {
-        var customerId = UUID.randomUUID();
-        var customer = new Customer("user@example.com", "hash", CustomerStatus.PENDING_VERIFICATION, Instant.now());
-        ReflectionTestUtils.setField(customer, "id", customerId);
-        when(customerRepository.findByEmail("user@example.com")).thenReturn(Optional.of(customer));
-        when(tokenRepository.countByCustomerIdAndCreatedAtAfter(eq(customerId), any(Instant.class))).thenReturn(3L);
-
-        assertThatThrownBy(() -> service.resendVerification(new ResendVerificationRequest("user@example.com")))
-                .isInstanceOf(RateLimitExceededException.class);
-    }
-
-    @Test
-    void shouldNotResend_whenCustomerAlreadyVerified() {
-        var customerId = UUID.randomUUID();
-        var customer = new Customer("user@example.com", "hash", CustomerStatus.PENDING_VERIFICATION, Instant.now());
-        ReflectionTestUtils.setField(customer, "id", customerId);
-        customer.verify();
-        when(customerRepository.findByEmail("user@example.com")).thenReturn(Optional.of(customer));
-
-        var response = service.resendVerification(new ResendVerificationRequest("user@example.com"));
-
-        assertThat(response.message()).isEqualTo("Verification email sent if account exists");
-        verify(tokenRepository, never()).save(any());
-    }
-
-    @Test
-    void shouldReturnProfile_whenCustomerExists() {
-        var customerId = UUID.randomUUID();
-        var customer = new Customer("user@example.com", "hash", CustomerStatus.PROFILE_COMPLETE, Instant.now());
-        ReflectionTestUtils.setField(customer, "id", customerId);
-        var profile = createTestProfile(customerId);
-        when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
-        when(profileRepository.findById(customerId)).thenReturn(Optional.of(profile));
-
-        var response = service.getProfile(customerId.toString());
-
-        assertThat(response.customerId()).isEqualTo(customerId);
-        assertThat(response.firstName()).isEqualTo("John");
-        assertThat(response.lastName()).isEqualTo("Doe");
-        assertThat(response.ssnLastFour()).isEqualTo("6789");
-        assertThat(response.address().street()).isEqualTo("123 Main St");
-        assertThat(response.phone()).isEqualTo("+1-555-123-4567");
-    }
-
-    private me.karun.bank.credit.customer.internal.domain.CustomerProfile createTestProfile(UUID customerId) {
-        var address = new me.karun.bank.credit.customer.internal.domain.Address(
-                "123 Main St",
-                "Apt 4B",
-                "New York",
-                "NY",
-                "10001"
-        );
-        return new me.karun.bank.credit.customer.internal.domain.CustomerProfile(
-                customerId,
-                "John",
-                "Doe",
-                java.time.LocalDate.of(1990, 5, 15),
-                "encrypted-ssn-data",
-                "6789",
-                address,
-                "+1-555-123-4567"
-        );
-    }
-
-    @Test
-    void shouldUpdateAddress_whenPatchRequestWithAddressOnly() {
-        var customerId = UUID.randomUUID();
-        var customer = new Customer("user@example.com", "hash", CustomerStatus.PROFILE_COMPLETE, Instant.now());
-        ReflectionTestUtils.setField(customer, "id", customerId);
-        var existingProfile = createTestProfile(customerId);
-        var newAddress = new AddressDto("456 Oak Ave", null, "Brooklyn", "NY", "11201");
-        var updateRequest = new ProfileUpdateRequest(java.util.Optional.of(newAddress), java.util.Optional.empty());
-        when(customerRepository.findById(customerId)).thenReturn(java.util.Optional.of(customer));
-        when(profileRepository.findById(customerId)).thenReturn(java.util.Optional.of(existingProfile));
-
-        var response = service.updateProfile(customerId.toString(), updateRequest);
-
-        assertThat(response.address().street()).isEqualTo("456 Oak Ave");
-        assertThat(response.address().city()).isEqualTo("Brooklyn");
-        assertThat(response.phone()).isEqualTo("+1-555-123-4567");
-    }
-
-    @Test
-    void shouldUpdatePhone_whenPatchRequestWithPhoneOnly() {
-        var customerId = UUID.randomUUID();
-        var customer = new Customer("user@example.com", "hash", CustomerStatus.PROFILE_COMPLETE, Instant.now());
-        ReflectionTestUtils.setField(customer, "id", customerId);
-        var existingProfile = createTestProfile(customerId);
-        var updateRequest = new ProfileUpdateRequest(java.util.Optional.empty(), java.util.Optional.of("+1-555-999-8888"));
-        when(customerRepository.findById(customerId)).thenReturn(java.util.Optional.of(customer));
-        when(profileRepository.findById(customerId)).thenReturn(java.util.Optional.of(existingProfile));
-
-        var response = service.updateProfile(customerId.toString(), updateRequest);
-
-        assertThat(response.phone()).isEqualTo("+1-555-999-8888");
-        assertThat(response.address().street()).isEqualTo("123 Main St");
-    }
-
-    @Test
-    void shouldUpdateBoth_whenPatchRequestWithAddressAndPhone() {
-        var customerId = UUID.randomUUID();
-        var customer = new Customer("user@example.com", "hash", CustomerStatus.PROFILE_COMPLETE, Instant.now());
-        ReflectionTestUtils.setField(customer, "id", customerId);
-        var existingProfile = createTestProfile(customerId);
-        var newAddress = new AddressDto("789 Pine Rd", "Unit 5", "Queens", "NY", "11375");
-        var updateRequest = new ProfileUpdateRequest(java.util.Optional.of(newAddress), java.util.Optional.of("+1-555-777-6666"));
-        when(customerRepository.findById(customerId)).thenReturn(java.util.Optional.of(customer));
-        when(profileRepository.findById(customerId)).thenReturn(java.util.Optional.of(existingProfile));
-
-        var response = service.updateProfile(customerId.toString(), updateRequest);
-
-        assertThat(response.address().street()).isEqualTo("789 Pine Rd");
-        assertThat(response.address().city()).isEqualTo("Queens");
-        assertThat(response.phone()).isEqualTo("+1-555-777-6666");
-    }
+  private CustomerRepository customerRepository;
+  private VerificationTokenRepository tokenRepository;
+  private CustomerProfileRepository profileRepository;
+  private me.karun.bank.credit.customer.internal.repository.ProfileAuditRepository auditRepository;
+  private PasswordEncoder passwordEncoder;
+  private ApplicationEventPublisher eventPublisher;
+  private EncryptionService encryptionService;
+  private CustomerServiceImpl service;
+
+  @BeforeEach
+  void setUp() {
+    customerRepository = mock(CustomerRepository.class);
+    tokenRepository = mock(VerificationTokenRepository.class);
+    profileRepository = mock(CustomerProfileRepository.class);
+    auditRepository =
+        mock(me.karun.bank.credit.customer.internal.repository.ProfileAuditRepository.class);
+    passwordEncoder = new BCryptPasswordEncoder(12);
+    eventPublisher = mock(ApplicationEventPublisher.class);
+    encryptionService = mock(EncryptionService.class);
+    service =
+        new CustomerServiceImpl(
+            customerRepository,
+            tokenRepository,
+            profileRepository,
+            auditRepository,
+            passwordEncoder,
+            eventPublisher,
+            encryptionService);
+  }
+
+  @Test
+  void shouldCreateCustomerInPendingVerificationStatus_whenValidRegistration() {
+    var request = new RegistrationRequest("user@example.com", "SecurePass123!");
+    when(customerRepository.save(any(Customer.class)))
+        .thenAnswer(invocation -> simulateJpaSave(invocation.getArgument(0)));
+
+    var response = service.register(request);
+
+    assertThat(response.customerId()).isNotNull();
+    assertThat(response.email()).isEqualTo("user@example.com");
+    assertThat(response.status()).isEqualTo(CustomerStatus.PENDING_VERIFICATION.name());
+    assertThat(response.createdAt()).isNotNull();
+  }
+
+  @Test
+  void shouldNormalizeEmailToLowercase_whenRegistering() {
+    var request = new RegistrationRequest("User@EXAMPLE.COM", "SecurePass123!");
+    when(customerRepository.save(any(Customer.class)))
+        .thenAnswer(invocation -> simulateJpaSave(invocation.getArgument(0)));
+
+    var response = service.register(request);
+
+    assertThat(response.email()).isEqualTo("user@example.com");
+  }
+
+  @Test
+  void shouldPersistCustomerWithHashedPassword_whenRegistering() {
+    var request = new RegistrationRequest("user@example.com", "SecurePass123!");
+    var customerCaptor = ArgumentCaptor.forClass(Customer.class);
+    when(customerRepository.save(any(Customer.class)))
+        .thenAnswer(invocation -> simulateJpaSave(invocation.getArgument(0)));
+
+    service.register(request);
+
+    verify(customerRepository).save(customerCaptor.capture());
+    var savedCustomer = customerCaptor.getValue();
+    assertThat(savedCustomer.getEmail()).isEqualTo("user@example.com");
+    assertThat(savedCustomer.getPasswordHash()).isNotEqualTo("SecurePass123!");
+    assertThat(passwordEncoder.matches("SecurePass123!", savedCustomer.getPasswordHash())).isTrue();
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"invalid", "missing-at.com", "@nodomain.com", "spaces in@email.com"})
+  void shouldRejectRegistration_whenEmailFormatIsInvalid(String invalidEmail) {
+    var request = new RegistrationRequest(invalidEmail, "SecurePass123!");
+
+    assertThatThrownBy(() -> service.register(request)).isInstanceOf(InvalidEmailException.class);
+  }
+
+  @ParameterizedTest
+  @ValueSource(
+      strings = {"Short1!", "nouppercase123!", "NOLOWERCASE123!", "NoNumbers!!", "NoSpecial123"})
+  void shouldRejectRegistration_whenPasswordIsWeak(String weakPassword) {
+    var request = new RegistrationRequest("user@example.com", weakPassword);
+
+    assertThatThrownBy(() -> service.register(request)).isInstanceOf(WeakPasswordException.class);
+  }
+
+  @ParameterizedTest
+  @NullAndEmptySource
+  @ValueSource(strings = {"   "})
+  void shouldRejectRegistration_whenEmailIsEmpty(String emptyEmail) {
+    var request = new RegistrationRequest(emptyEmail, "SecurePass123!");
+
+    assertThatThrownBy(() -> service.register(request)).isInstanceOf(InvalidEmailException.class);
+  }
+
+  @ParameterizedTest
+  @NullAndEmptySource
+  @ValueSource(strings = {"   "})
+  void shouldRejectRegistration_whenPasswordIsEmpty(String emptyPassword) {
+    var request = new RegistrationRequest("user@example.com", emptyPassword);
+
+    assertThatThrownBy(() -> service.register(request)).isInstanceOf(WeakPasswordException.class);
+  }
+
+  @Test
+  void shouldRejectRegistration_whenEmailAlreadyExists() {
+    var request = new RegistrationRequest("existing@example.com", "SecurePass123!");
+    var existingCustomer =
+        new Customer(
+            "existing@example.com", "hash", CustomerStatus.PENDING_VERIFICATION, Instant.now());
+    when(customerRepository.findByEmail("existing@example.com"))
+        .thenReturn(Optional.of(existingCustomer));
+
+    assertThatThrownBy(() -> service.register(request))
+        .isInstanceOf(EmailAlreadyExistsException.class);
+  }
+
+  @Test
+  void shouldAcceptEmailWithSpecialCharacters_whenRegistering() {
+    var request = new RegistrationRequest("user+tag@example.com", "SecurePass123!");
+    when(customerRepository.findByEmail("user+tag@example.com")).thenReturn(Optional.empty());
+    when(customerRepository.save(any(Customer.class)))
+        .thenAnswer(invocation -> simulateJpaSave(invocation.getArgument(0)));
+
+    var response = service.register(request);
+
+    assertThat(response.email()).isEqualTo("user+tag@example.com");
+  }
+
+  @Test
+  void shouldPublishCustomerRegisteredEvent_whenRegistrationSucceeds() {
+    var request = new RegistrationRequest("user@example.com", "SecurePass123!");
+    when(customerRepository.save(any(Customer.class)))
+        .thenAnswer(invocation -> simulateJpaSave(invocation.getArgument(0)));
+    var eventCaptor = ArgumentCaptor.forClass(CustomerRegisteredEvent.class);
+
+    var response = service.register(request);
+
+    verify(eventPublisher).publishEvent(eventCaptor.capture());
+    var event = eventCaptor.getValue();
+    assertThat(event.customerId()).isEqualTo(response.customerId());
+    assertThat(event.email()).isEqualTo("user@example.com");
+    assertThat(event.registeredAt()).isNotNull();
+  }
+
+  private Customer simulateJpaSave(Customer customer) {
+    ReflectionTestUtils.setField(customer, "id", UUID.randomUUID());
+    return customer;
+  }
+
+  @Test
+  void shouldVerifyCustomer_whenValidToken() {
+    var customerId = UUID.randomUUID();
+    var rawToken = "valid-token";
+    var tokenHash = hashToken(rawToken);
+    var customer =
+        new Customer(
+            "user@example.com", "hash", CustomerStatus.PENDING_VERIFICATION, Instant.now());
+    ReflectionTestUtils.setField(customer, "id", customerId);
+    var token = new VerificationToken(customerId, tokenHash, Instant.now().plusSeconds(3600));
+    when(tokenRepository.findByTokenHash(tokenHash)).thenReturn(Optional.of(token));
+    when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
+
+    var response = service.verifyEmail(new VerifyEmailRequest(rawToken));
+
+    assertThat(response.customerId()).isEqualTo(customerId);
+    assertThat(response.status()).isEqualTo("VERIFIED");
+    assertThat(response.verifiedAt()).isNotNull();
+  }
+
+  @Test
+  void shouldThrowTokenNotFoundException_whenTokenDoesNotExist() {
+    var rawToken = "non-existent-token";
+    when(tokenRepository.findByTokenHash(hashToken(rawToken))).thenReturn(Optional.empty());
+
+    assertThatThrownBy(() -> service.verifyEmail(new VerifyEmailRequest(rawToken)))
+        .isInstanceOf(TokenNotFoundException.class);
+  }
+
+  @Test
+  void shouldThrowTokenExpiredException_whenTokenIsExpired() {
+    var customerId = UUID.randomUUID();
+    var rawToken = "expired-token";
+    var tokenHash = hashToken(rawToken);
+    var expiredToken =
+        new VerificationToken(customerId, tokenHash, Instant.now().minusSeconds(3600));
+    when(tokenRepository.findByTokenHash(tokenHash)).thenReturn(Optional.of(expiredToken));
+
+    assertThatThrownBy(() -> service.verifyEmail(new VerifyEmailRequest(rawToken)))
+        .isInstanceOf(TokenExpiredException.class);
+  }
+
+  @Test
+  void shouldReturnSuccess_whenCustomerAlreadyVerified() {
+    var customerId = UUID.randomUUID();
+    var rawToken = "valid-token";
+    var tokenHash = hashToken(rawToken);
+    var customer =
+        new Customer(
+            "user@example.com", "hash", CustomerStatus.PENDING_VERIFICATION, Instant.now());
+    ReflectionTestUtils.setField(customer, "id", customerId);
+    customer.verify();
+    var token = new VerificationToken(customerId, tokenHash, Instant.now().plusSeconds(3600));
+    when(tokenRepository.findByTokenHash(tokenHash)).thenReturn(Optional.of(token));
+    when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
+
+    var response = service.verifyEmail(new VerifyEmailRequest(rawToken));
+
+    assertThat(response.status()).isEqualTo("VERIFIED");
+  }
+
+  @Test
+  void shouldDeleteToken_afterSuccessfulVerification() {
+    var customerId = UUID.randomUUID();
+    var rawToken = "valid-token";
+    var tokenHash = hashToken(rawToken);
+    var customer =
+        new Customer(
+            "user@example.com", "hash", CustomerStatus.PENDING_VERIFICATION, Instant.now());
+    ReflectionTestUtils.setField(customer, "id", customerId);
+    var token = new VerificationToken(customerId, tokenHash, Instant.now().plusSeconds(3600));
+    ReflectionTestUtils.setField(token, "id", UUID.randomUUID());
+    when(tokenRepository.findByTokenHash(tokenHash)).thenReturn(Optional.of(token));
+    when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
+
+    service.verifyEmail(new VerifyEmailRequest(rawToken));
+
+    verify(tokenRepository).delete(token);
+  }
+
+  private String hashToken(String rawToken) {
+    return Integer.toHexString(rawToken.hashCode());
+  }
+
+  @Test
+  void shouldResendVerification_whenCustomerExistsAndNotVerified() {
+    var customerId = UUID.randomUUID();
+    var customer =
+        new Customer(
+            "user@example.com", "hash", CustomerStatus.PENDING_VERIFICATION, Instant.now());
+    ReflectionTestUtils.setField(customer, "id", customerId);
+    when(customerRepository.findByEmail("user@example.com")).thenReturn(Optional.of(customer));
+    when(tokenRepository.countByCustomerIdAndCreatedAtAfter(eq(customerId), any(Instant.class)))
+        .thenReturn(0L);
+
+    var response = service.resendVerification(new ResendVerificationRequest("user@example.com"));
+
+    assertThat(response.message()).isEqualTo("Verification email sent if account exists");
+    verify(tokenRepository).save(any(VerificationToken.class));
+  }
+
+  @Test
+  void shouldReturnSuccess_whenEmailDoesNotExist() {
+    when(customerRepository.findByEmail("unknown@example.com")).thenReturn(Optional.empty());
+
+    var response = service.resendVerification(new ResendVerificationRequest("unknown@example.com"));
+
+    assertThat(response.message()).isEqualTo("Verification email sent if account exists");
+    verify(tokenRepository, never()).save(any());
+  }
+
+  @Test
+  void shouldThrowRateLimitExceeded_whenTooManyResendRequests() {
+    var customerId = UUID.randomUUID();
+    var customer =
+        new Customer(
+            "user@example.com", "hash", CustomerStatus.PENDING_VERIFICATION, Instant.now());
+    ReflectionTestUtils.setField(customer, "id", customerId);
+    when(customerRepository.findByEmail("user@example.com")).thenReturn(Optional.of(customer));
+    when(tokenRepository.countByCustomerIdAndCreatedAtAfter(eq(customerId), any(Instant.class)))
+        .thenReturn(3L);
+
+    assertThatThrownBy(
+            () -> service.resendVerification(new ResendVerificationRequest("user@example.com")))
+        .isInstanceOf(RateLimitExceededException.class);
+  }
+
+  @Test
+  void shouldNotResend_whenCustomerAlreadyVerified() {
+    var customerId = UUID.randomUUID();
+    var customer =
+        new Customer(
+            "user@example.com", "hash", CustomerStatus.PENDING_VERIFICATION, Instant.now());
+    ReflectionTestUtils.setField(customer, "id", customerId);
+    customer.verify();
+    when(customerRepository.findByEmail("user@example.com")).thenReturn(Optional.of(customer));
+
+    var response = service.resendVerification(new ResendVerificationRequest("user@example.com"));
+
+    assertThat(response.message()).isEqualTo("Verification email sent if account exists");
+    verify(tokenRepository, never()).save(any());
+  }
+
+  @Test
+  void shouldReturnProfile_whenCustomerExists() {
+    var customerId = UUID.randomUUID();
+    var customer =
+        new Customer("user@example.com", "hash", CustomerStatus.PROFILE_COMPLETE, Instant.now());
+    ReflectionTestUtils.setField(customer, "id", customerId);
+    var profile = createTestProfile(customerId);
+    when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
+    when(profileRepository.findById(customerId)).thenReturn(Optional.of(profile));
+
+    var response = service.getProfile(customerId.toString());
+
+    assertThat(response.customerId()).isEqualTo(customerId);
+    assertThat(response.firstName()).isEqualTo("John");
+    assertThat(response.lastName()).isEqualTo("Doe");
+    assertThat(response.ssnLastFour()).isEqualTo("6789");
+    assertThat(response.address().street()).isEqualTo("123 Main St");
+    assertThat(response.phone()).isEqualTo("+1-555-123-4567");
+  }
+
+  private me.karun.bank.credit.customer.internal.domain.CustomerProfile createTestProfile(
+      UUID customerId) {
+    var address =
+        new me.karun.bank.credit.customer.internal.domain.Address(
+            "123 Main St", "Apt 4B", "New York", "NY", "10001");
+    return new me.karun.bank.credit.customer.internal.domain.CustomerProfile(
+        customerId,
+        "John",
+        "Doe",
+        java.time.LocalDate.of(1990, 5, 15),
+        "encrypted-ssn-data",
+        "6789",
+        address,
+        "+1-555-123-4567");
+  }
+
+  @Test
+  void shouldUpdateAddress_whenPatchRequestWithAddressOnly() {
+    var customerId = UUID.randomUUID();
+    var customer =
+        new Customer("user@example.com", "hash", CustomerStatus.PROFILE_COMPLETE, Instant.now());
+    ReflectionTestUtils.setField(customer, "id", customerId);
+    var existingProfile = createTestProfile(customerId);
+    var newAddress = new AddressDto("456 Oak Ave", null, "Brooklyn", "NY", "11201");
+    var updateRequest =
+        new ProfileUpdateRequest(java.util.Optional.of(newAddress), java.util.Optional.empty());
+    when(customerRepository.findById(customerId)).thenReturn(java.util.Optional.of(customer));
+    when(profileRepository.findById(customerId)).thenReturn(java.util.Optional.of(existingProfile));
+
+    var response = service.updateProfile(customerId.toString(), updateRequest);
+
+    assertThat(response.address().street()).isEqualTo("456 Oak Ave");
+    assertThat(response.address().city()).isEqualTo("Brooklyn");
+    assertThat(response.phone()).isEqualTo("+1-555-123-4567");
+  }
+
+  @Test
+  void shouldUpdatePhone_whenPatchRequestWithPhoneOnly() {
+    var customerId = UUID.randomUUID();
+    var customer =
+        new Customer("user@example.com", "hash", CustomerStatus.PROFILE_COMPLETE, Instant.now());
+    ReflectionTestUtils.setField(customer, "id", customerId);
+    var existingProfile = createTestProfile(customerId);
+    var updateRequest =
+        new ProfileUpdateRequest(
+            java.util.Optional.empty(), java.util.Optional.of("+1-555-999-8888"));
+    when(customerRepository.findById(customerId)).thenReturn(java.util.Optional.of(customer));
+    when(profileRepository.findById(customerId)).thenReturn(java.util.Optional.of(existingProfile));
+
+    var response = service.updateProfile(customerId.toString(), updateRequest);
+
+    assertThat(response.phone()).isEqualTo("+1-555-999-8888");
+    assertThat(response.address().street()).isEqualTo("123 Main St");
+  }
+
+  @Test
+  void shouldUpdateBoth_whenPatchRequestWithAddressAndPhone() {
+    var customerId = UUID.randomUUID();
+    var customer =
+        new Customer("user@example.com", "hash", CustomerStatus.PROFILE_COMPLETE, Instant.now());
+    ReflectionTestUtils.setField(customer, "id", customerId);
+    var existingProfile = createTestProfile(customerId);
+    var newAddress = new AddressDto("789 Pine Rd", "Unit 5", "Queens", "NY", "11375");
+    var updateRequest =
+        new ProfileUpdateRequest(
+            java.util.Optional.of(newAddress), java.util.Optional.of("+1-555-777-6666"));
+    when(customerRepository.findById(customerId)).thenReturn(java.util.Optional.of(customer));
+    when(profileRepository.findById(customerId)).thenReturn(java.util.Optional.of(existingProfile));
+
+    var response = service.updateProfile(customerId.toString(), updateRequest);
+
+    assertThat(response.address().street()).isEqualTo("789 Pine Rd");
+    assertThat(response.address().city()).isEqualTo("Queens");
+    assertThat(response.phone()).isEqualTo("+1-555-777-6666");
+  }
 }

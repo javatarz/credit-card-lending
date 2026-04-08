@@ -8,69 +8,69 @@ import java.util.UUID;
 @Table(name = "customers", schema = "customer")
 public class Customer {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-    @Column(nullable = false, unique = true)
-    private String email;
+  @Column(nullable = false, unique = true)
+  private String email;
 
-    @Column(name = "password_hash", nullable = false)
-    private String passwordHash;
+  @Column(name = "password_hash", nullable = false)
+  private String passwordHash;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private CustomerStatus status;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private CustomerStatus status;
 
-    @Column(name = "created_at", nullable = false)
-    private Instant createdAt;
+  @Column(name = "created_at", nullable = false)
+  private Instant createdAt;
 
-    @Column(name = "verified_at")
-    private Instant verifiedAt;
+  @Column(name = "verified_at")
+  private Instant verifiedAt;
 
-    protected Customer() {}
+  protected Customer() {}
 
-    public Customer(String email, String passwordHash, CustomerStatus status, Instant createdAt) {
-        this.email = email;
-        this.passwordHash = passwordHash;
-        this.status = status;
-        this.createdAt = createdAt;
-    }
+  public Customer(String email, String passwordHash, CustomerStatus status, Instant createdAt) {
+    this.email = email;
+    this.passwordHash = passwordHash;
+    this.status = status;
+    this.createdAt = createdAt;
+  }
 
-    public UUID getId() {
-        return id;
-    }
+  public UUID getId() {
+    return id;
+  }
 
-    public String getEmail() {
-        return email;
-    }
+  public String getEmail() {
+    return email;
+  }
 
-    public String getPasswordHash() {
-        return passwordHash;
-    }
+  public String getPasswordHash() {
+    return passwordHash;
+  }
 
-    public CustomerStatus getStatus() {
-        return status;
-    }
+  public CustomerStatus getStatus() {
+    return status;
+  }
 
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
+  public Instant getCreatedAt() {
+    return createdAt;
+  }
 
-    public Instant getVerifiedAt() {
-        return verifiedAt;
-    }
+  public Instant getVerifiedAt() {
+    return verifiedAt;
+  }
 
-    public void verify() {
-        this.status = CustomerStatus.VERIFIED;
-        this.verifiedAt = Instant.now();
-    }
+  public void verify() {
+    this.status = CustomerStatus.VERIFIED;
+    this.verifiedAt = Instant.now();
+  }
 
-    public boolean isVerified() {
-        return this.status == CustomerStatus.VERIFIED || this.status == CustomerStatus.PROFILE_COMPLETE;
-    }
+  public boolean isVerified() {
+    return this.status == CustomerStatus.VERIFIED || this.status == CustomerStatus.PROFILE_COMPLETE;
+  }
 
-    public void completeProfile() {
-        this.status = CustomerStatus.PROFILE_COMPLETE;
-    }
+  public void completeProfile() {
+    this.status = CustomerStatus.PROFILE_COMPLETE;
+  }
 }

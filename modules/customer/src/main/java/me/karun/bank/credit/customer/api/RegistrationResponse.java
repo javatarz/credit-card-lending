@@ -4,9 +4,4 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record RegistrationResponse(
-        UUID customerId,
-        String email,
-        String status,
-        Instant createdAt
-) {
-}
+    UUID customerId, String email, String status, Instant createdAt) {}

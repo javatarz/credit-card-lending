@@ -4,9 +4,4 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record VerifyEmailResponse(
-        UUID customerId,
-        String email,
-        String status,
-        Instant verifiedAt
-) {
-}
+    UUID customerId, String email, String status, Instant verifiedAt) {}

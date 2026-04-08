@@ -11,14 +11,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 public class CustomerConfig {
 
-    @Bean
-    public PasswordEncoder passwordEncoder(@Value("${customer.bcrypt.strength:12}") int strength) {
-        return new BCryptPasswordEncoder(strength);
-    }
+  @Bean
+  public PasswordEncoder passwordEncoder(@Value("${customer.bcrypt.strength:12}") int strength) {
+    return new BCryptPasswordEncoder(strength);
+  }
 
-    @Bean
-    public EncryptionService encryptionService(@Value("${customer.encryption.key}") String encryptionKey) {
-        // TODO #23: Integrate with AWS Secrets Manager after story #49 (auth) is complete
-        return new AwsSecretsManagerEncryptionService(encryptionKey);
-    }
+  @Bean
+  public EncryptionService encryptionService(
+      @Value("${customer.encryption.key}") String encryptionKey) {
+    // TODO #23: Integrate with AWS Secrets Manager after story #49 (auth) is complete
+    return new AwsSecretsManagerEncryptionService(encryptionKey);
+  }
 }
