@@ -4,10 +4,6 @@ You are helping the user develop a story using Test-Driven Development (TDD).
 
 **Before starting:** Read `docs/context/testing.md` for TDD principles and `docs/context/conventions.md` for code standards.
 
-## Phase 0: Sync Beads
-
-Run the `/sync-beads` skill to ensure Beads cards are in sync with GitHub Issues before starting work.
-
 ## Phase 1: Card Identification
 
 1. **Get current user and their assigned cards**:
@@ -17,7 +13,7 @@ Run the `/sync-beads` skill to ensure Beads cards are in sync with GitHub Issues
    ```
 
 2. **Handle assignment state**:
-   - If **no cards assigned**: Stop and tell user to run `/pickup` first
+   - If **no cards assigned**: Run the `/pickup` skill to let the user choose and assign a card, then proceed
    - If **one card assigned**: Proceed with that card
    - If **multiple cards assigned**: Use AskUserQuestion to let user choose which to work on
 
